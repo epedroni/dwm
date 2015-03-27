@@ -31,7 +31,7 @@ static int def_layouts[1 + LENGTH(tags)]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 /* rules */
 static const Rule rules[] = {
 	/* class      instance      title       tags mask     isfloating   monitor */
-	{  NULL,      NULL,         NULL,       0,            True,        -1 },
+	{  NULL,      NULL,         NULL,       0,            False,        -1 },
 };
 
 /* layout(s) */
@@ -60,15 +60,23 @@ static const Layout layouts[] = {
 /* commands */
 static const char *dmenucmd[]     = { "dmenu_recent_aliases", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]      = { "xterm", NULL };
+static const char *browsercmd[]   = { "chromium", NULL };
+static const char *playercmd[]    = { "deadbeef", NULL };
+static const char *wincmd[]       = { "vboxsdl", "--startvm", "win7", NULL };
+static const char *editorcmd[]    = { "gedit", NULL };
 
-static const char *lowervolume[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
-static const char *raisevolume[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
-static const char *mutevolume[]  = { "amixer", "-q", "set", "Master", "toggle", NULL };
+static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
+static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
+static const char *mutevolumecmd[]   = { "amixer", "-q", "set", "Master", "toggle", NULL };
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
+	{ MODKEY|ShiftMask,             XK_n,      spawn,          {.v = browsercmd } },
+	{ MODKEY|ShiftMask,             XK_m,      spawn,          {.v = playercmd } },
+	{ MODKEY|ShiftMask,             XK_b,      spawn,          {.v = wincmd } },
+	{ MODKEY|ShiftMask,             XK_v,      spawn,          {.v = editorcmd } },
 	
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	
@@ -105,9 +113,9 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	
-	{ 0,         XF86XK_AudioRaiseVolume,      spawn,          {.v = raisevolume } },
-	{ 0,         XF86XK_AudioLowerVolume,      spawn,          {.v = lowervolume } },
-	{ 0,         XF86XK_AudioMute,             spawn,          {.v = mutevolume } },
+	{ 0,         XF86XK_AudioRaiseVolume,      spawn,          {.v = raisevolumecmd } },
+	{ 0,         XF86XK_AudioLowerVolume,      spawn,          {.v = lowervolumecmd } },
+	{ 0,         XF86XK_AudioMute,             spawn,          {.v = mutevolumecmd } },
 	
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },
