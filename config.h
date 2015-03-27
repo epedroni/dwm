@@ -1,17 +1,16 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-//static const char font[]            = "-*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*";
-static const char font[]            = "Sans 8";
+static const char font[]            = "-*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*";
+//static const char font[]            = "Sans 8";
 
-#define NUMCOLORS         5             // need at least 3
+#define NUMCOLORS         4              // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
    { "#3b3b3b", "#888888", "#0b0b0b" },  // 0 = normal
    { "#000000", "#386dff", "#0b0b0b" },  // 1 = selected
    { "#ffffff", "#808080", "#ffffaa" },  // 2 = urgent/warning
    { "#ffffff", "#808080", "#ffaaaa" },  // 3 = error
-   { "#000000", "#d0d0d0", "#386dff" },  // 4 = tab selection
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
