@@ -1,17 +1,23 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char font[]            = "-*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*";
-static const char normbordercolor[] = "#3B3B3B";
-static const char normbgcolor[]     = "#111111";
-static const char normfgcolor[]     = "#bbbbbb";
-static const char selbordercolor[]  = "#000000";
-static const char selbgcolor[]      = "#0A0A0A";
-static const char selfgcolor[]      = "#eeeeee";
+//static const char font[]            = "-*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*";
+static const char font[]            = "Sans 8";
+
+#define NUMCOLORS         5             // need at least 3
+static const char colors[NUMCOLORS][ColLast][8] = {
+   // border   foreground  background
+   { "#3b3b3b", "#888888", "#0b0b0b" },  // 0 = normal
+   { "#000000", "#386dff", "#0b0b0b" },  // 1 = selected
+   { "#ffffff", "#808080", "#ffffaa" },  // 2 = urgent/warning
+   { "#ffffff", "#808080", "#ffaaaa" },  // 3 = error
+   { "#000000", "#d0d0d0", "#386dff" },  // 4 = tab selection
+};
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
-static const Bool topbar            = False;     /* False means bottom bar */
+static const Bool topbar            = False;    /* False means bottom bar */
+static const Bool statusmarkup      = True;     /* True means use pango markup in status message */
 
 /*   Display modes of the tab bar: never shown, always shown, shown only in  */
 /*   monocle mode in presence of several windows.                            */
@@ -58,7 +64,7 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[]     = { "dmenu_recent_aliases", "-fn", font, "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *dmenucmd[]     = { "dmenu_recent_aliases", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[1][ColFG], NULL };
 static const char *termcmd[]      = { "xterm", NULL };
 static const char *browsercmd[]   = { "chromium", NULL };
 static const char *playercmd[]    = { "deadbeef", NULL };

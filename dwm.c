@@ -37,6 +37,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
+#include <X11/Xft/Xft.h>
+#include <pango/pango.h>
+#include <pango/pangoxft.h>
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
@@ -48,8 +51,13 @@
 			       * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
 #define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
+#ifndef MAX
 #define MAX(A, B)               ((A) > (B) ? (A) : (B))
+#endif /* MAX */
+#ifndef MIN
 #define MIN(A, B)               ((A) < (B) ? (A) : (B))
+#endif /* MIN */
+#define MAXCOLORS               8
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -100,17 +108,19 @@ struct Client {
 
 typedef struct {
 	int x, y, w, h;
-	unsigned long norm[ColLast];
-	unsigned long sel[ColLast];
+	unsigned long colors[MAXCOLORS][ColLast];
 	Drawable drawable;
 	Drawable tabdrawable;
 	GC gc;
 	struct {
+	    XftColor colors[MAXCOLORS][ColLast];
+		XftDraw *drawable;
+	} xft;
+	struct {
 		int ascent;
 		int descent;
 		int height;
-		XFontSet set;
-		XFontStruct *xfont;
+		PangoLayout *layout;
 	} font;
 } DC; /* draw context */
 
@@ -193,8 +203,9 @@ static void drawbar(Monitor *m);
 static void drawbars(void);
 static void drawtab(Monitor *m);
 static void drawtabs(void);
-static void drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]);
-static void drawtext(Drawable drawable, const char *text, unsigned long col[ColLast], Bool invert);
+static void drawcoloredtext(char *text);
+static void drawsquare(Bool filled, Bool empty, int col);
+static void drawtext(Drawable drawable, const char *text, int col, Bool pad);
 //static void drawtabtext(const char *text, unsigned long col[ColLast], Bool invert);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
@@ -203,7 +214,8 @@ static void focuswin(const Arg* arg);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
-static unsigned long getcolor(const char *colstr);
+//static unsigned long getcolor(const char *colstr); patched!
+static unsigned long getcolor(const char *colstr, XftColor *color);
 static Bool getrootptr(int *x, int *y);
 static long getstate(Window w);
 static Bool gettextprop(Window w, Atom atom, char *text, unsigned int size);
@@ -272,7 +284,7 @@ static void zoom(const Arg *arg);
 
 /* variables */
 static const char broken[] = "broken";
-static char stext[256];
+static char stext[512];
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh, blw = 0;      /* bar geometry */
@@ -530,19 +542,23 @@ cleanup(void) {
 	Arg a = {.ui = ~0};
 	Layout foo = { "", NULL };
 	Monitor *m;
+	int i;
 
 	view(&a);
 	selmon->lt[selmon->sellt] = &foo;
 	for(m = mons; m; m = m->next)
 		while(m->stack)
 			unmanage(m->stack, False);
-	if(dc.font.set)
-		XFreeFontSet(dpy, dc.font.set);
-	else
-		XFreeFont(dpy, dc.font.xfont);
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
 	XFreePixmap(dpy, dc.drawable);
 	XFreePixmap(dpy, dc.tabdrawable);
+	for(int c=0; c<NUMCOLORS; c++) {
+	    for(i = ColBorder; i < ColLast; i++) {
+		    XftColorFree(dpy, DefaultVisual(dpy, screen), DefaultColormap(dpy, screen), dc.xft.colors[c] + i);
+	    }
+	}
+	XftDrawDestroy(dc.xft.drawable);
+	g_object_unref(dc.font.layout);	
 	XFreeGC(dpy, dc.gc);
 	XFreeCursor(dpy, cursor[CurNormal]);
 	XFreeCursor(dpy, cursor[CurResize]);
@@ -635,6 +651,7 @@ configurenotify(XEvent *e) {
 			if(dc.drawable != 0)
 				XFreePixmap(dpy, dc.drawable);
 			dc.drawable = XCreatePixmap(dpy, root, sw, bh, DefaultDepth(dpy, screen));
+			XftDrawChange(dc.xft.drawable, dc.drawable);
 			if(dc.tabdrawable != 0)
 				XFreePixmap(dpy, dc.tabdrawable);
 			dc.tabdrawable = XCreatePixmap(dpy, root, sw, th, DefaultDepth(dpy, screen));
@@ -803,7 +820,7 @@ void
 drawbar(Monitor *m) {
 	int x;
 	unsigned int i, occ = 0, urg = 0;
-	unsigned long *col;
+	int col;
 	Client *c;
 
 	for(c = m->clients; c; c = c->next) {
@@ -814,14 +831,13 @@ drawbar(Monitor *m) {
 	dc.x = 0;
 	for(i = 0; i < LENGTH(tags); i++) {
 		dc.w = TEXTW(tags[i]);
-		col = m->tagset[m->seltags] & 1 << i ? dc.sel : dc.norm;
-		drawtext(dc.drawable, tags[i], col, urg & 1 << i);
-		drawsquare(m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
-			   occ & 1 << i, urg & 1 << i, col);
+		col = (m->tagset[m->seltags] & 1 << i ? 1:(urg & 1 << i ? 2:0));
+		drawtext(dc.drawable, tags[i], col, True);
+		drawsquare(m == selmon && selmon->sel && selmon->sel->tags & 1 << i, occ & 1 << i, col);		   
 		dc.x += dc.w;
 	}
 	dc.w = blw = TEXTW(m->ltsymbol);
-	drawtext(dc.drawable, m->ltsymbol, dc.norm, False);
+	drawtext(dc.drawable, m->ltsymbol, 0, True);
 	dc.x += dc.w;
 	x = dc.x;
 	if(m == selmon) { /* status is only drawn on selected monitor */
@@ -831,21 +847,20 @@ drawbar(Monitor *m) {
 			dc.x = x;
 			dc.w = m->ww - x;
 		}
-		drawtext(dc.drawable, stext, dc.norm, False);
+		drawcoloredtext(stext);
 	}
 	else
 		dc.x = m->ww;
-	if((dc.w = dc.x - x) > bh) {
+	/*if((dc.w = dc.x - x) > bh) {
 		dc.x = x;
-		if(m->sel) {
-		  //			col = m == selmon ? dc.sel : dc.norm;
-		  //	drawtext(dc.drawable, m->sel->name, col, False);
-		  drawtext(dc.drawable, m->sel->name, dc.norm, False);
-			drawsquare(m->sel->isfixed, m->sel->isfloating, False, col);
+		if(m->sel) {          
+			col = m == selmon ? dc.colors[1] : dc.colors[0];
+			drawtext(dc.drawable, m->sel->name, col, True); // experiment1 - no win title
+            drawsquare(m->sel->isfixed, m->sel->isfloating, col);
 		}
-		else
-		  drawtext(dc.drawable, NULL, dc.norm, False);
-	}
+		else*/
+		  drawtext(dc.drawable, NULL, 0, False);
+	//}
 	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
 	XSync(dpy, False);
 }
@@ -877,7 +892,7 @@ cmpint(const void *p1, const void *p2) {
 
 void
 drawtab(Monitor *m) {
-	unsigned long *col;
+	int col;
 	Client *c;
 	int i;
 	int itag = -1;
@@ -936,31 +951,59 @@ drawtab(Monitor *m) {
 	  if(i >= m->ntabs) break;
 	  if(m->tab_widths[i] >  maxsize) m->tab_widths[i] = maxsize;
 	  dc.w = m->tab_widths[i];
-	  col = (c == m->sel)  ? dc.sel : dc.norm;
-	  drawtext(dc.tabdrawable, c->name, col, 0);
+	  col = (c == m->sel)  ? 1 : 0;
+	  drawtext(dc.tabdrawable, c->name, col, True);
 	  dc.x += dc.w;
 	  ++i;
 	}
 
 	/* cleans interspace between window names and current viewed tag label */
 	dc.w = m->ww - view_info_w - dc.x;
-	drawtext(dc.tabdrawable, NULL, dc.norm, 0);
+	drawtext(dc.tabdrawable, NULL, 0, False);
 
 	/* view info */
 	dc.x += dc.w;
 	dc.w = view_info_w;
-	drawtext(dc.tabdrawable, view_info, dc.norm, 0);
+	drawtext(dc.tabdrawable, view_info, 0, True);
 
 	XCopyArea(dpy, dc.tabdrawable, m->tabwin, dc.gc, 0, 0, m->ww, th, 0, 0);
 	XSync(dpy, False);
 }
 
+void
+drawcoloredtext(char *text) {
+	Bool first=True;
+	char *buf = text, *ptr = buf, c = 1;
+	int col = 0;
+	int i, ox = dc.x;
+
+	while( *ptr ) {
+		for( i = 0; *ptr < 0 || *ptr > NUMCOLORS; i++, ptr++);
+		if( !*ptr ) break;
+		c=*ptr;
+		*ptr=0;
+		if( i ) {
+			dc.w = selmon->ww - dc.x;
+			drawtext(dc.drawable, buf, col, first);
+			dc.x += textnw(buf, i) + textnw(&c,1);
+			if( first ) dc.x += ( dc.font.ascent + dc.font.descent ) / 2;
+			first = False;
+		} else if( first ) {
+			ox = dc.x += textnw(&c,1);
+		}
+		*ptr = c;
+		col = c-1;
+		buf = ++ptr;
+	}
+	if( !first ) dc.x-=(dc.font.ascent+dc.font.descent)/2;
+	drawtext(dc.drawable, buf, col, True);
+	dc.x = ox;
+}
 
 void
-drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]) {
+drawsquare(Bool filled, Bool empty, int col) {
 	int x;
-
-	XSetForeground(dpy, dc.gc, col[invert ? ColBG : ColFG]);
+	XSetForeground(dpy, dc.gc, dc.colors[col][ ColFG ]);
 	x = (dc.font.ascent + dc.font.descent + 2) / 4;
 	if(filled)
 		XFillRectangle(dpy, dc.drawable, dc.gc, dc.x+1, dc.y+1, x+1, x+1);
@@ -970,30 +1013,41 @@ drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]) {
 
 
 void
-drawtext(Drawable drawable, const char *text, unsigned long col[ColLast], Bool invert) {
-	char buf[256];
+//drawtext(Drawable drawable, const char *text, unsigned long col[ColLast], Bool pad) {
+drawtext(Drawable drawable, const char *text, int col, Bool pad) {
+	char buf[512];
 	int i, x, y, h, len, olen;
 
-	XSetForeground(dpy, dc.gc, col[invert ? ColFG : ColBG]);
+	XSetForeground(dpy, dc.gc, dc.colors[col][ColBG]);
 	XFillRectangle(dpy, drawable, dc.gc, dc.x, dc.y, dc.w, dc.h);
 	if(!text)
 		return;
 	olen = strlen(text);
-	h = dc.font.ascent + dc.font.descent;
-	y = dc.y + (dc.h / 2) - (h / 2) + dc.font.ascent;
+	h = pad ? (dc.font.ascent + dc.font.descent) : 0;
+	//y = dc.y + ((dc.h + dc.font.ascent - dc.font.descent) / 2); patched!
+	y = dc.y + (dc.h / 2) - (h / 2);
 	x = dc.x + (h / 2);
-	/* shorten text if necessary */
+	/* shorten text if necessary (this could wreak havoc with pango markup but fortunately
+	   dc.w is adjusted to the width of the status text and not the other way around) */
 	for(len = MIN(olen, sizeof buf); len && textnw(text, len) > dc.w - h; len--);
 	if(!len)
 		return;
 	memcpy(buf, text, len);
 	if(len < olen)
 		for(i = len; i && i > len - 3; buf[--i] = '.');
-	XSetForeground(dpy, dc.gc, col[invert ? ColBG : ColFG]);
-	if(dc.font.set)
-		XmbDrawString(dpy, drawable, dc.font.set, dc.gc, x, y, buf, len);
+	//XSetForeground(dpy, dc.gc, col[ColFG]); patched!
+	//if(dc.font.set)
+	//    XmbDrawString(dpy, drawable, dc.font.set, dc.gc, x, y, buf, len);
+	if(text == stext && statusmarkup)
+		pango_layout_set_markup(dc.font.layout, buf, len);
+		
 	else
-		XDrawString(dpy, drawable, dc.gc, x, y, buf, len);
+		//XDrawString(dpy, drawable, dc.gc, x, y, buf, len); patched! and further ahead, patchy issues
+		pango_layout_set_text(dc.font.layout, buf, len);
+	pango_xft_render_layout(dc.xft.drawable, dc.xft.colors[col] + ColFG,
+		dc.font.layout, x * PANGO_SCALE, y * PANGO_SCALE);
+	if(text == stext && statusmarkup) /* clear markup attributes */
+		pango_layout_set_attributes(dc.font.layout, NULL);
 }
 
 
@@ -1042,7 +1096,7 @@ focus(Client *c) {
 		detachstack(c);
 		attachstack(c);
 		grabbuttons(c, True);
-		XSetWindowBorder(dpy, c->win, dc.sel[ColBorder]);
+		XSetWindowBorder(dpy, c->win, dc.colors[1][ColBorder]);
 		setfocus(c);
 	}
 	else
@@ -1128,13 +1182,13 @@ getatomprop(Client *c, Atom prop) {
 }
 
 unsigned long
-getcolor(const char *colstr) {
+getcolor(const char *colstr, XftColor *color) {
 	Colormap cmap = DefaultColormap(dpy, screen);
-	XColor color;
+	Visual *vis = DefaultVisual(dpy, screen);
 
-	if(!XAllocNamedColor(dpy, cmap, colstr, &color, &color))
+	if(!XftColorAllocName(dpy, vis, cmap, colstr, color))
 		die("error, cannot allocate color '%s'\n", colstr);
-	return color.pixel;
+	return color->pixel;
 }
 
 Bool
@@ -1235,36 +1289,24 @@ incnmaster(const Arg *arg) {
 
 void
 initfont(const char *fontstr) {
-	char *def, **missing;
-	int n;
+	PangoFontMap *fontmap;
+	PangoContext *context;
+	PangoFontDescription *desc;
+	PangoFontMetrics *metrics;
 
-	dc.font.set = XCreateFontSet(dpy, fontstr, &missing, &n, &def);
-	if(missing) {
-		while(n--)
-			fprintf(stderr, "dwm: missing fontset: %s\n", missing[n]);
-		XFreeStringList(missing);
-	}
-	if(dc.font.set) {
-		XFontStruct **xfonts;
-		char **font_names;
+	fontmap = pango_xft_get_font_map(dpy, screen);
+	context = pango_font_map_create_context(fontmap);
+	desc = pango_font_description_from_string(fontstr);
+	dc.font.layout = pango_layout_new(context);
+	pango_layout_set_font_description(dc.font.layout, desc);
 
-		dc.font.ascent = dc.font.descent = 0;
-		XExtentsOfFontSet(dc.font.set);
-		n = XFontsOfFontSet(dc.font.set, &xfonts, &font_names);
-		while(n--) {
-			dc.font.ascent = MAX(dc.font.ascent, (*xfonts)->ascent);
-			dc.font.descent = MAX(dc.font.descent,(*xfonts)->descent);
-			xfonts++;
-		}
-	}
-	else {
-		if(!(dc.font.xfont = XLoadQueryFont(dpy, fontstr))
-		&& !(dc.font.xfont = XLoadQueryFont(dpy, "fixed")))
-			die("error, cannot load font: '%s'\n", fontstr);
-		dc.font.ascent = dc.font.xfont->ascent;
-		dc.font.descent = dc.font.xfont->descent;
-	}
-	dc.font.height = dc.font.ascent + dc.font.descent;
+	metrics = pango_context_get_metrics(context, desc, NULL);
+	dc.font.ascent = pango_font_metrics_get_ascent(metrics) / PANGO_SCALE;
+	dc.font.descent = pango_font_metrics_get_descent(metrics) / PANGO_SCALE;
+ 	dc.font.height = dc.font.ascent + dc.font.descent;
+
+	pango_font_metrics_unref(metrics);
+	g_object_unref(context);
 }
 
 #ifdef XINERAMA
@@ -1345,7 +1387,7 @@ manage(Window w, XWindowAttributes *wa) {
 
 	wc.border_width = c->bw;
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
-	XSetWindowBorder(dpy, w, dc.norm[ColBorder]);
+	XSetWindowBorder(dpy, w, dc.colors[0][ColBorder]);
 	configure(c); /* propagates border_width, if size doesn't change */
 	updatewindowtype(c);
 	updatesizehints(c);
@@ -1820,18 +1862,16 @@ setup(void) {
 	cursor[CurResize] = XCreateFontCursor(dpy, XC_sizing);
 	cursor[CurMove] = XCreateFontCursor(dpy, XC_fleur);
 	/* init appearance */
-	dc.norm[ColBorder] = getcolor(normbordercolor);
-	dc.norm[ColBG] = getcolor(normbgcolor);
-	dc.norm[ColFG] = getcolor(normfgcolor);
-	dc.sel[ColBorder] = getcolor(selbordercolor);
-	dc.sel[ColBG] = getcolor(selbgcolor);
-	dc.sel[ColFG] = getcolor(selfgcolor);
+	for(int i=0; i<NUMCOLORS; i++) {
+		dc.colors[i][ColBorder] = getcolor( colors[i][ColBorder], dc.xft.colors[i] + ColBorder );
+		dc.colors[i][ColFG] = getcolor( colors[i][ColFG], dc.xft.colors[i] + ColFG );
+		dc.colors[i][ColBG] = getcolor( colors[i][ColBG], dc.xft.colors[i] + ColBG );
+	}
 	dc.drawable = XCreatePixmap(dpy, root, DisplayWidth(dpy, screen), bh, DefaultDepth(dpy, screen));
 	dc.tabdrawable = XCreatePixmap(dpy, root, DisplayWidth(dpy, screen), th, DefaultDepth(dpy, screen));
+	dc.xft.drawable = XftDrawCreate(dpy, dc.drawable, DefaultVisual(dpy, screen), DefaultColormap(dpy, screen));
 	dc.gc = XCreateGC(dpy, root, 0, NULL);
 	XSetLineAttributes(dpy, dc.gc, 1, LineSolid, CapButt, JoinMiter);
-	if(!dc.font.set)
-		XSetFont(dpy, dc.gc, dc.font.xfont->fid);
 	/* init bars */
 	updatebars();
 	updatestatus();
@@ -1901,13 +1941,15 @@ tagmon(const Arg *arg) {
 
 int
 textnw(const char *text, unsigned int len) {
-	XRectangle r;
-
-	if(dc.font.set) {
-		XmbTextExtents(dc.font.set, text, len, NULL, &r);
-		return r.width;
-	}
-	return XTextWidth(dc.font.xfont, text, len);
+	PangoRectangle r;
+	if(text == stext && statusmarkup)
+		pango_layout_set_markup(dc.font.layout, text, len);
+	else
+		pango_layout_set_text(dc.font.layout, text, len);
+	pango_layout_get_extents(dc.font.layout, 0, &r);
+	if(text == stext && statusmarkup) /* clear markup attributes */
+		pango_layout_set_attributes(dc.font.layout, NULL);
+	return r.width / PANGO_SCALE;
 }
 
 void
@@ -2018,7 +2060,7 @@ unfocus(Client *c, Bool setfocus) {
 	if(!c)
 		return;
 	grabbuttons(c, False);
-	XSetWindowBorder(dpy, c->win, dc.norm[ColBorder]);
+	XSetWindowBorder(dpy, c->win, dc.colors[0][ColBorder]);
 	if(setfocus)
 		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
 }
