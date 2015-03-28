@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char font[]            = "-*-terminus-medium-r-*-*-12-*-*-*-*-*-*-*";
-//static const char font[]            = "Sans 8";
+//static const char font[]            = "-*-terminus-medium-r-*-*-10-*-*-*-*-*-*-*";
+static const char font[]            = "DejaVu Sans:size=8";
 
 #define NUMCOLORS         4              // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
