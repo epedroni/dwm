@@ -1,21 +1,26 @@
 /* See LICENSE file for copyright and license details. */
 
+/* XF86 keys */
+#define VOLUP	0x1008FF11   /* Volume control down        */
+#define VOLDOWN	0x1008FF12   /* Mute sound from the system */
+#define VOLMUTE	0x1008FF13   /* Volume control up          */
+
 /* appearance */
-//static const char font[]            = "-*-terminus-medium-r-*-*-10-*-*-*-*-*-*-*";
-static const char font[]            = "DejaVu Sans:size=8";
+static const char font[]            = "DejaVu Sans:size=8:weight=140";
+static const char symfont[]         = "-*-xbmicons-medium-r-*-*-12-*-*-*-*-*-*-*";
 
 #define NUMCOLORS         4              // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
-   { "#3b3b3b", "#303030", "#000000" },  // 0 = normal
+   { "#3b3b3b", "#454545", "#000000" },  // 0 = normal
    { "#000000", "#386dff", "#000000" },  // 1 = selected
-   { "#ffffff", "#808080", "#ffffaa" },  // 2 = urgent/warning
-   { "#ffffff", "#808080", "#ffaaaa" },  // 3 = error
+   { "#ffffff", "#ffca38", "#000000" },  // 2 = urgent/warning
+   { "#ffffff", "#ff3838", "#000000" },  // 3 = error
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 16;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
-static const Bool topbar            = False;    /* False means bottom bar */
+static const Bool topbar            = True;     /* False means bottom bar */
 static const Bool showtitle         = False;    /* True means titles are shown on bar */
 
 /*   Display modes of the tab bar: never shown, always shown, shown only in  */
@@ -23,7 +28,7 @@ static const Bool showtitle         = False;    /* True means titles are shown o
 /*   A mode can be disabled by moving it after the showtab_nmodes end marker */
 enum showtab_modes { showtab_never, showtab_auto, showtab_nmodes, showtab_always};
 static const int showtab            = showtab_auto; /* Default tab bar show mode  */
-static const Bool toptab            = True;         /* False means bottom tab bar */
+static const Bool toptab            = False;        /* False means bottom tab bar */
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
@@ -118,9 +123,9 @@ static Key keys[] = {
 	TAGKEYS(                        XK_8,                      7)
 	TAGKEYS(                        XK_9,                      8)
 	
-	{ 0,         XF86XK_AudioRaiseVolume,      spawn,          {.v = raisevolumecmd } },
-	{ 0,         XF86XK_AudioLowerVolume,      spawn,          {.v = lowervolumecmd } },
-	{ 0,         XF86XK_AudioMute,             spawn,          {.v = mutevolumecmd } },
+	{ 0,                            VOLUP,     spawn,          {.v = raisevolumecmd } },
+	{ 0,                            VOLDOWN,   spawn,          {.v = lowervolumecmd } },
+	{ 0,                            VOLMUTE,   spawn,          {.v = mutevolumecmd } },
 	
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },

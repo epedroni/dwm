@@ -32,7 +32,6 @@
 #include <sys/wait.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
-#include <X11/XF86keysym.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xproto.h>
@@ -201,7 +200,6 @@ static void drawtabs(void);
 static void drawcoloredtext(char *text);
 static void drawsquare(Bool filled, Bool empty, int col);
 static void drawtext(Drawable drawable, const char *text, int col, Bool pad);
-//static void drawtabtext(const char *text, unsigned long col[ColLast], Bool invert);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
