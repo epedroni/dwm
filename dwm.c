@@ -843,8 +843,7 @@ drawbar(Monitor *m) {
 	if((dc.w = dc.x - x) > bh) {
 		dc.x = x;
 		if(m->sel && showtitle) {          
-			col = m == selmon ? 1 : 0;
-			drawtext(dc.drawable, m->sel->name, col, True);
+			drawtext(dc.drawable, m->sel->name, 0, True);
             drawsquare(m->sel->isfixed, m->sel->isfloating, col);
 		}
 		else
@@ -1024,7 +1023,7 @@ drawtext(Drawable drawable, const char *text, int col, Bool pad) {
 	if(len < olen)
 		for(i = len; i && i > len - 3; buf[--i] = '.');
 
-    d = XftDrawCreate(dpy, dc.drawable, DefaultVisual(dpy, screen), DefaultColormap(dpy,screen));
+    d = XftDrawCreate(dpy, drawable, DefaultVisual(dpy, screen), DefaultColormap(dpy,screen));
 
 	XftDrawStringUtf8(d, &dc.xftcolors[col][ColFG], dc.font.xfont, x, y, (XftChar8 *) buf, len);
 	XftDrawDestroy(d);
