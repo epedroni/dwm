@@ -7,16 +7,16 @@ static const char font[]            = "DejaVu Sans:size=8";
 #define NUMCOLORS         4              // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
-   { "#3b3b3b", "#888888", "#0b0b0b" },  // 0 = normal
-   { "#000000", "#386dff", "#0b0b0b" },  // 1 = selected
+   { "#3b3b3b", "#303030", "#000000" },  // 0 = normal
+   { "#000000", "#386dff", "#000000" },  // 1 = selected
    { "#ffffff", "#808080", "#ffffaa" },  // 2 = urgent/warning
    { "#ffffff", "#808080", "#ffaaaa" },  // 3 = error
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int snap      = 16;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = False;    /* False means bottom bar */
-static const Bool showtitle         = True;     /* True means titles are shown on bar */
+static const Bool showtitle         = False;    /* True means titles are shown on bar */
 
 /*   Display modes of the tab bar: never shown, always shown, shown only in  */
 /*   monocle mode in presence of several windows.                            */
@@ -141,5 +141,6 @@ static Button buttons[] = {
 	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+	{ ClkTabBar,            0,              Button1,        focuswin,       {0} },
 };
 
