@@ -16,7 +16,7 @@ static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = False;    /* False means bottom bar */
-static const Bool statusmarkup      = True;     /* True means use pango markup in status message */
+static const Bool showtitle         = False;    /* True means titles are shown on bar */
 
 /*   Display modes of the tab bar: never shown, always shown, shown only in  */
 /*   monocle mode in presence of several windows.                            */

@@ -209,8 +209,7 @@ static void focuswin(const Arg* arg);
 static void focusin(XEvent *e);
 static void focusmon(const Arg *arg);
 static void focusstack(const Arg *arg);
-static unsigned long getcolor(const char *colstr);
-static XftColor getcolorxft(const char *colstr);
+static XftColor getcolor(const char *colstr);
 static Bool getrootptr(int *x, int *y);
 static long getstate(Window w);
 static Bool gettextprop(Window w, Atom atom, char *text, unsigned int size);
@@ -821,7 +820,7 @@ drawbar(Monitor *m) {
 	dc.x = 0;
 	for(i = 0; i < LENGTH(tags); i++) {
 		dc.w = TEXTW(tags[i]);
-		col = (m->tagset[m->seltags] & 1 << i ? 1:(urg & 1 << i ? 2:0));
+		col = (m->tagset[m->seltags] & 1 << i ? 1:(urg & 1 << i ? 2 : 0));
 		drawtext(dc.drawable, tags[i], col, True);
 		drawsquare(m == selmon && selmon->sel && selmon->sel->tags & 1 << i, occ & 1 << i, col);		   
 		dc.x += dc.w;
@@ -841,16 +840,16 @@ drawbar(Monitor *m) {
 	}
 	else
 		dc.x = m->ww;
-	/*if((dc.w = dc.x - x) > bh) {
+	if((dc.w = dc.x - x) > bh) {
 		dc.x = x;
-		if(m->sel) {          
-			col = m == selmon ? dc.colors[1] : dc.colors[0];
-			drawtext(dc.drawable, m->sel->name, col, True); // experiment1 - no win title
+		if(m->sel && showtitle) {          
+			col = m == selmon ? 1 : 0;
+			drawtext(dc.drawable, m->sel->name, col, True);
             drawsquare(m->sel->isfixed, m->sel->isfloating, col);
 		}
-		else*/
+		else
 		  drawtext(dc.drawable, NULL, 0, False);
-	//}
+	}
 	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
 	XSync(dpy, False);
 }
@@ -1024,11 +1023,7 @@ drawtext(Drawable drawable, const char *text, int col, Bool pad) {
 	memcpy(buf, text, len);
 	if(len < olen)
 		for(i = len; i && i > len - 3; buf[--i] = '.');
-	/*XSetForeground(dpy, dc.gc, dc.colors[col][ColFG]);
-	if(dc.font.set)
-	    XmbDrawString(dpy, drawable, dc.font.set, dc.gc, x, y, buf, len);
-	else
-		XDrawString(dpy, drawable, dc.gc, x, y, buf, len);*/
+
     d = XftDrawCreate(dpy, dc.drawable, DefaultVisual(dpy, screen), DefaultColormap(dpy,screen));
 
 	XftDrawStringUtf8(d, &dc.xftcolors[col][ColFG], dc.font.xfont, x, y, (XftChar8 *) buf, len);
@@ -1166,18 +1161,8 @@ getatomprop(Client *c, Atom prop) {
 	return atom;
 }
 
-unsigned long
-getcolor(const char *colstr) {
-	Colormap cmap = DefaultColormap(dpy, screen);
-	XColor color;
-	
-	if(!XAllocNamedColor(dpy, cmap, colstr, &color, &color))
-	    die("error, cannot allocate color '%s'\n", colstr);
-	return color.pixel;
-}
-
 XftColor
-getcolorxft(const char *colstr) {
+getcolor(const char *colstr) {
 	XftColor color;
 	
     if(!XftColorAllocName(dpy, DefaultVisual(dpy, screen), DefaultColormap(dpy, screen), colstr, &color))
@@ -1846,12 +1831,9 @@ setup(void) {
 	cursor[CurMove] = XCreateFontCursor(dpy, XC_fleur);
 	/* init appearance */
 	for(int i=0; i<NUMCOLORS; i++) {
-		dc.colors[i][ColBorder] = getcolor( colors[i][ColBorder] );
-		dc.colors[i][ColFG] = getcolor( colors[i][ColFG] );
-		dc.colors[i][ColBG] = getcolor( colors[i][ColBG] );
-		dc.xftcolors[i][ColBorder] = getcolorxft( colors[i][ColBorder] );
-		dc.xftcolors[i][ColFG] = getcolorxft( colors[i][ColFG] );
-		dc.xftcolors[i][ColBG] = getcolorxft( colors[i][ColBG] );
+		dc.xftcolors[i][ColBorder] = getcolor( colors[i][ColBorder] );
+		dc.xftcolors[i][ColFG] = getcolor( colors[i][ColFG] );
+		dc.xftcolors[i][ColBG] = getcolor( colors[i][ColBG] );
 	}
 	dc.drawable = XCreatePixmap(dpy, root, DisplayWidth(dpy, screen), bh, DefaultDepth(dpy, screen));
 	dc.tabdrawable = XCreatePixmap(dpy, root, DisplayWidth(dpy, screen), th, DefaultDepth(dpy, screen));
