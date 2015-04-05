@@ -1,26 +1,27 @@
 /* See LICENSE file for copyright and license details. */
 
 /* XF86 keys */
-#define VOLUP	0x1008FF11   /* Volume control down        */
-#define VOLDOWN	0x1008FF12   /* Mute sound from the system */
-#define VOLMUTE	0x1008FF13   /* Volume control up          */
+#define VOLDOWN	0x1008FF11   /* Volume control down        */
+#define VOLMUTE	0x1008FF12   /* Mute sound from the system */
+#define VOLUP	0x1008FF13   /* Volume control up          */
 
 /* appearance */
-static const char font[]            = "DejaVu Sans:size=8:weight=140";
-static const char symfont[]         = "-*-xbmicons-medium-r-*-*-12-*-*-*-*-*-*-*";
+static const char font[]            = "DejaVu Sans:size=8";
+static const char symfont[]         = "DejaVu Sans Mono:size=8:weight=140";
 
-#define NUMCOLORS         4              // need at least 3
+#define NUMCOLORS 5                      // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
    { "#3b3b3b", "#454545", "#000000" },  // 0 = normal
    { "#000000", "#386dff", "#000000" },  // 1 = selected
    { "#ffffff", "#ffca38", "#000000" },  // 2 = urgent/warning
    { "#ffffff", "#ff3838", "#000000" },  // 3 = error
+   { "#ffffff", "#BBBBBB", "#000000" },  // 4 = statusbar
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 16;       /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
-static const Bool topbar            = True;     /* False means bottom bar */
+static const Bool topbar            = False;    /* False means bottom bar */
 static const Bool showtitle         = False;    /* True means titles are shown on bar */
 
 /*   Display modes of the tab bar: never shown, always shown, shown only in  */
@@ -28,7 +29,7 @@ static const Bool showtitle         = False;    /* True means titles are shown o
 /*   A mode can be disabled by moving it after the showtab_nmodes end marker */
 enum showtab_modes { showtab_never, showtab_auto, showtab_nmodes, showtab_always};
 static const int showtab            = showtab_auto; /* Default tab bar show mode  */
-static const Bool toptab            = False;        /* False means bottom tab bar */
+static const Bool toptab            = True;         /* False means bottom tab bar */
 
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
