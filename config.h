@@ -6,20 +6,19 @@
 #define VOLUP	0x1008FF13   /* Volume control up          */
 
 /* appearance */
-static const char font[]            = "DejaVu Sans:size=8";
-static const char symfont[]         = "DejaVu Sans Mono:size=8:weight=140";
+static const char font[]            = "DVIcons:size=8";
 
 #define NUMCOLORS 5                      // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
-   { "#3b3b3b", "#454545", "#000000" },  // 0 = normal
-   { "#000000", "#386dff", "#000000" },  // 1 = selected
-   { "#ffffff", "#ffca38", "#000000" },  // 2 = urgent/warning
-   { "#ffffff", "#ff3838", "#000000" },  // 3 = error
-   { "#ffffff", "#BBBBBB", "#000000" },  // 4 = statusbar
+   { "#3b3b3b", "#404040", "#111111" },  // 0 = normal
+   { "#000000", "#386dff", "#111111" },  // 1 = selected
+   { "#ffffff", "#ffca38", "#111111" },  // 2 = urgent/warning
+   { "#ffffff", "#ff3838", "#111111" },  // 3 = error
+   { "#ffffff", "#999999", "#111111" },  // 4 = statusbar
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
-static const unsigned int snap      = 16;       /* snap pixel */
+static const unsigned int snap      = 8;        /* snap pixel */
 static const Bool showbar           = True;     /* False means no bar */
 static const Bool topbar            = False;    /* False means bottom bar */
 static const Bool showtitle         = False;    /* True means titles are shown on bar */
@@ -31,18 +30,43 @@ enum showtab_modes { showtab_never, showtab_auto, showtab_nmodes, showtab_always
 static const int showtab            = showtab_auto; /* Default tab bar show mode  */
 static const Bool toptab            = True;         /* False means bottom tab bar */
 
-/* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+/* tags                        web       chat      work      office    media     win7      gp        gp        gp    */
+static const char *tags[] = { "\uE372", "\uE21B", "\uE3A9", "\uE0F2", "\uE140", "\uE343", "\uE027", "\uE027", "\uE027" };
+/*
+web: E372
+media: E140
+office: E0F2
+file manager: E235
+chat: E21B
+work: E3A9
+win7: E343
+gp: E027
+*/
 
 /* default layout per tags */
 /* The first element is for all-tag view, following i-th element corresponds to */
 /* tags[i]. Layout is referred using the layouts array index.*/
-static int def_layouts[1 + LENGTH(tags)]  = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+/* tags                                      all    web    chat   work   office media  win7   gp     gp     gp */
+static int def_layouts[1 + LENGTH(tags)] = { 0,     2,     0,     2,     2,     0,     0,     0,     0,     0 };
 
 /* rules */
 static const Rule rules[] = {
-	/* class      instance      title       tags mask     isfloating   monitor */
-	{  NULL,      NULL,         NULL,       0,            False,        -1 },
+	/* class        instance      title            tags mask     isfloating   monitor */
+	/* WM_CLASS     WM_CLASS      WM_NAME                                             */
+  //{  NULL,        NULL,         NULL,            0,            False,        -1 },
+	{  "Surf",      "surf",       NULL,            1 << 0,       False,        -1 },
+	{  "Chromium",  "Chromium",   NULL,            1 << 0,       False,        -1 },
+	
+	{  "XTerm",     "profanity",  "profanity",     1 << 1,       False,        -1 },
+	
+	{  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
+	
+	{  "TeXstudio", "texstudio",  NULL,            1 << 3,       False,        -1 },
+	{  "Abiword",   "abiword",    NULL,            1 << 3,       False,        -1 },
+	{  "Gnumeric",  "gnumeric",   NULL,            1 << 3,       False,        -1 },
+	
+	{  "Deadbeef",  "deadbeef",   NULL,            1 << 4,       False,        -1 },
+	{  "Vlc",       "vlc",        NULL,            1 << 4,       False,        -1 },
 };
 
 /* layout(s) */
@@ -71,7 +95,8 @@ static const Layout layouts[] = {
 /* commands */
 static const char *dmenucmd[]     = { "dmenu_recent_aliases", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[1][ColFG], NULL };
 static const char *termcmd[]      = { "xterm", NULL };
-static const char *browsercmd[]   = { "chromium", NULL };
+static const char *browsercmd[]   = { "surf", NULL };
+static const char *profanitycmd[]   = { "xterm", "-name", "profanity", "-e", "profanity", NULL };
 static const char *playercmd[]    = { "deadbeef", NULL };
 static const char *wincmd[]       = { "vboxsdl", "--startvm", "win7", NULL };
 static const char *editorcmd[]    = { "gedit", NULL };
@@ -84,12 +109,11 @@ static Key keys[] = {
 	/* modifier                     key        function        argument */
 	{ MODKEY,                       XK_d,      spawn,          {.v = dmenucmd } },
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
-	{ MODKEY|ShiftMask,             XK_n,      spawn,          {.v = browsercmd } },
-	{ MODKEY|ShiftMask,             XK_m,      spawn,          {.v = playercmd } },
-	{ MODKEY|ShiftMask,             XK_b,      spawn,          {.v = wincmd } },
-	{ MODKEY|ShiftMask,             XK_v,      spawn,          {.v = editorcmd } },
-	
-	{ MODKEY,                       XK_b,      togglebar,      {0} },
+	{ MODKEY,                       XK_t,      spawn,          {.v = browsercmd } },
+	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = playercmd } },
+	{ MODKEY|ShiftMask,             XK_o,      spawn,          {.v = profanitycmd } },
+	{ MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
+	{ MODKEY|ShiftMask,             XK_u,      spawn,          {.v = wincmd } },
 	
 	{ MODKEY,                       XK_Left,   focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_Right,  focusstack,     {.i = +1 } },
@@ -114,15 +138,15 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_comma,  tagmon,         {.i = -1 } },
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
 	
-	TAGKEYS(                        XK_1,                      0)
-	TAGKEYS(                        XK_2,                      1)
-	TAGKEYS(                        XK_3,                      2)
-	TAGKEYS(                        XK_4,                      3)
-	TAGKEYS(                        XK_5,                      4)
-	TAGKEYS(                        XK_6,                      5)
-	TAGKEYS(                        XK_7,                      6)
-	TAGKEYS(                        XK_8,                      7)
-	TAGKEYS(                        XK_9,                      8)
+	TAGKEYS(                        XK_n,                      0) // web
+	TAGKEYS(                        XK_b,                      1) // chat
+	TAGKEYS(                        XK_a,                      2) // work
+	TAGKEYS(                        XK_s,                      3) // office
+	TAGKEYS(                        XK_m,                      4) // media
+	TAGKEYS(                        XK_v,                      5) // win7
+	TAGKEYS(                        XK_1,                      6) // gp
+	TAGKEYS(                        XK_2,                      7) // gp
+	TAGKEYS(                        XK_3,                      8) // gp
 	
 	{ 0,                            VOLUP,     spawn,          {.v = raisevolumecmd } },
 	{ 0,                            VOLDOWN,   spawn,          {.v = lowervolumecmd } },

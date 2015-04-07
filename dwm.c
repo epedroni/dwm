@@ -735,10 +735,10 @@ createmon(void) {
 		m->pertag->mfacts[i] = m->mfact;
 
 		/* init layouts */
-		m->pertag->ltidxs[i][0] = m->lt[0];
+		m->pertag->ltidxs[i][0] = &layouts[def_layouts[i] % LENGTH(layouts)];
 		m->pertag->ltidxs[i][1] = m->lt[1];
 		m->pertag->sellts[i] = m->sellt;
-
+        
 		/* init showbar */
 		m->pertag->showbars[i] = m->showbar;
 
@@ -900,9 +900,9 @@ drawtab(Monitor *m) {
 	  }
 	}
 	if(0 <= itag  && itag < LENGTH(tags)){
-	  snprintf(view_info, sizeof view_info, "[%s]", tags[itag]);
+	  snprintf(view_info, sizeof view_info, "%s", tags[itag]);
 	} else {
-	  strncpy(view_info, "[...]", sizeof view_info);
+	  strncpy(view_info, "...", sizeof view_info);
 	}
 	view_info[sizeof(view_info) - 1 ] = 0;
 	view_info_w = TEXTW(view_info);
@@ -937,7 +937,7 @@ drawtab(Monitor *m) {
 	  if(i >= m->ntabs) break;
 	  if(m->tab_widths[i] >  maxsize) m->tab_widths[i] = maxsize;
 	  dc.w = m->tab_widths[i];
-	  col = (c == m->sel)  ? 1 : 0;
+	  col = (c == m->sel)  ? 1 : (c->isurgent ? 2 : 0);
 	  drawtext(dc.tabdrawable, c->name, col, True);
 	  dc.x += dc.w;
 	  ++i;
