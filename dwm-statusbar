@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+#
+# ~/scripts/dwm-statusbar
+#
+# Status bar for dwm. Adapted from:
+# https://github.com/w0ng/bin/blob/master/dwm-statusbar
+
+# Colour codes from dwm/config.h
+colour_faded="\x01" # grey on black
+colour_neutral="\x02" # blue on black
+colour_warning="\x03" # yellow on black
+colour_critical="\x04" # red on black
+colour_normal="\x05" # grey on black
+
+# Icon glyphs from font xbmicons.pcf
+space="  "
+
+print_date() {
+  echo -ne "${colour_normal}$(date "+%d/%m/%y")"
+}
+
+print_time() {
+  time_local="$(date "+%H:%M")"
+  time_us="$(TZ='US/Central' date "+%H:%M")"
+  
+  echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}${colour_faded}${time_us}"
+}
+
+print_volume() {
+  # empty E022, low E023, full E024, mid E03B
+  volume=$(amixer get Master | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')
+  mute="$(amixer get Master | tail -n1 | sed -r 's/.*\[(on|off)\].*/\1/')"
+  
+  if [ "$mute" == "off" ]; then
+    vol_colour=$colour_warning
+    icon_colour=$colour_warning
+    icon="\uE022"
+  else
+    vol_colour=$colour_normal
+    icon_colour=$colour_neutral
+    if [ $volume -eq 0 ]; then
+      icon="\uE022"
+    elif [ $volume -lt 33 ]; then
+      icon="\uE023"
+    elif [ $volume -lt 66 ]; then
+      icon="\uE03B"
+    else
+      icon="\uE024"
+    fi
+  fi
+  
+  echo -ne "${icon_colour}${icon}${vol_colour}${volume}%"
+}
+
+print_battery() {
+  # charging E20D, empty E20E, full E20F, 2/3 E210, 1/3 E211
+  # 1 or 0
+  ac_status=$(cat /sys/class/power_supply/AC/online)
+  bat_capacity=$(cat /sys/class/power_supply/BAT0/capacity)
+  
+  if [ $ac_status -eq 1 ]; then
+    bat_colour=$colour_normal
+    icon_colour=$colour_neutral
+    icon="\uE20D"
+  elif [ $bat_capacity -lt 10 ]; then
+    bat_colour=$colour_critical
+    icon_colour=$colour_critical
+    icon="\uE20E"
+  elif [ $bat_capacity -lt 33 ]; then
+    bat_colour=$colour_warning
+    icon_colour=$colour_warning
+    icon="\uE211"
+  elif [ $bat_capacity -lt 66 ]; then
+    bat_colour=$colour_normal
+    icon_colour=$colour_neutral
+    icon="\uE210"
+  else
+    bat_colour=$colour_normal
+    icon_colour=$colour_neutral
+    icon="\uE20F"
+  fi
+  
+  echo -ne "${icon_colour}${icon}${bat_colour}${bat_capacity}%"
+}
+
+print_mem_free() {
+  mem_free="$(free -m | awk 'NR==2 {print $7}')"
+  
+  mem_colour=$colour_normal
+  icon_colour=$colour_neutral
+  if [ $mem_free -lt 250 ]; then
+    mem_colour=$colour_critical
+    icon_colour=$colour_critical
+  elif [ $mem_free -lt 500 ]; then
+    mem_colour=$colour_warning
+    icon_colour=$colour_warning
+  fi
+  
+  echo -ne "${icon_colour}\uE28B${mem_colour}${mem_free}M"
+}
+
+print_cpu_temp() {
+  cpu_temp=$(sensors | awk 'NR==3 {print $3}' | sed -r 's/\+([0-9]+).*/\1/')
+  
+  temp_colour=$colour_normal
+  icon_colour=$colour_neutral
+  if [ $cpu_temp -gt 80 ]; then
+    temp_colour=$colour_critical
+    icon_colour=$colour_critical
+  elif [ $cpu_temp -gt 60 ]; then
+    temp_colour=$colour_warning
+    icon_colour=$colour_warning
+  fi
+  
+  echo -ne "${icon_colour}\uE3B2${temp_colour}${cpu_temp}°"
+}
+
+# cpu (from: https://bbs.archlinux.org/viewtopic.php?pid=661641#p661641)
+print_cpu_used() {
+  echo -ne "${colour_neutral}\uE3AF${colour_normal}${cpu_used}%"
+}
+
+while true; do
+  # get new cpu idle and total usage
+  eval $(awk '/^cpu /{print "cpu_idle_now=" $5 "; cpu_total_now=" $2+$3+$4+$5 }' /proc/stat)
+  cpu_interval=$((cpu_total_now-${cpu_total_old:-0}))
+  # calculate cpu usage (%)
+  let cpu_used="100 * ($cpu_interval - ($cpu_idle_now-${cpu_idle_old:-0})) / $cpu_interval"
+
+  # Pipe to status bar
+  xsetroot -name "$(print_cpu_used)${space}$(print_cpu_temp)${space}$(print_mem_free)${space}$(print_battery)${space}$(print_volume)${space}$(print_time)$(print_date)"
+
+  # reset old rate
+  cpu_idle_old=$cpu_idle_now
+  cpu_total_old=$cpu_total_now
+  
+  # loop stats every 1 second
+  sleep 1
+done
