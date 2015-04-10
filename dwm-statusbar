@@ -124,7 +124,7 @@ print_wifi() {
   wifi_status=$(ip addr show dev wlan0 | awk 'NR==1 {print $9}')
   
   if [ "$wifi_status" == "UP" ]; then
-    let wifi_strength="10 * $(cat /proc/net/wireless | awk 'NR==3 {print substr($3, 1, 2)}') / 7%"
+    let wifi_strength="10 * $(cat /proc/net/wireless | awk 'NR==3 {print substr($3, 1, 2)}') / 7"
     if [ $wifi_strength -lt 25 ]; then
       icon_colour=${colour_critical}
       wifi_colour=${colour_critical}
@@ -136,12 +136,13 @@ print_wifi() {
       wifi_colour=${colour_normal}
     fi
     
+    wifi_strength="${wifi_strength}%"
     wifi_ip=$(ip addr show dev wlan0 | awk 'NR==3 {print $2}' | sed -r 's/\/.*/, /')
     
   else
     icon_colour=${colour_faded}
   fi
-    #uE0E4
+
   echo -ne "${icon_colour}\uE401${wifi_colour}${wifi_ip}${wifi_strength}"
 }
 
