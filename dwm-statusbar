@@ -56,31 +56,51 @@ print_battery() {
   # charging E20D, empty E20E, full E20F, 2/3 E210, 1/3 E211
   # 1 or 0
   ac_status=$(cat /sys/class/power_supply/AC/online)
-  bat_capacity=$(cat /sys/class/power_supply/BAT0/capacity)
   
   if [ $ac_status -eq 1 ]; then
-    bat_colour=$colour_normal
     icon_colour=$colour_neutral
-    icon="\uE20D"
-  elif [ $bat_capacity -lt 10 ]; then
-    bat_colour=$colour_critical
-    icon_colour=$colour_critical
-    icon="\uE20E"
-  elif [ $bat_capacity -lt 33 ]; then
-    bat_colour=$colour_warning
-    icon_colour=$colour_warning
-    icon="\uE211"
-  elif [ $bat_capacity -lt 66 ]; then
-    bat_colour=$colour_normal
-    icon_colour=$colour_neutral
-    icon="\uE210"
+    if [ -d "/sys/class/power_supply/BAT0" ]; then
+      icon="\uE20D"
+      bat_colour=$colour_normal
+      bat_capacity="$(cat /sys/class/power_supply/BAT0/capacity)%"
+    else
+      icon="\uE257"
+    fi
   else
-    bat_colour=$colour_normal
-    icon_colour=$colour_neutral
-    icon="\uE20F"
+    bat_capacity=$(cat /sys/class/power_supply/BAT0/capacity)
+    if [ $bat_capacity -lt 10 ]; then
+      bat_colour=$colour_critical
+      icon_colour=$colour_critical
+      icon="\uE20E"
+    elif [ $bat_capacity -lt 25 ]; then
+      bat_colour=$colour_warning
+      icon_colour=$colour_warning
+      icon="\uE211"
+    elif [ $bat_capacity -lt 50 ]; then
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE1FB"
+    elif [ $bat_capacity -lt 75 ]; then
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE210"
+    else
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE20F"
+    fi
+    bat_capacity="${bat_capacity}%"
   fi
   
-  echo -ne "${icon_colour}${icon}${bat_colour}${bat_capacity}%"
+  echo -ne "${icon_colour}${icon}${bat_colour}${bat_capacity}"
+}
+
+print_sda1_free() {
+  sda1_free=$(df -kh /)
+  
+  
+  
+  echo -ne "${sda1_free}"
 }
 
 print_mem_free() {
@@ -155,7 +175,6 @@ print_eth() {
     eth_colour=${colour_normal}
   else
     icon_colour=${colour_faded}
-    eth_colour=${colour_normal}
   fi
 
   echo -ne "${icon_colour}\uE0E4${eth_colour}${eth_ip}"
