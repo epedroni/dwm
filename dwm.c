@@ -937,7 +937,7 @@ drawtab(Monitor *m) {
 	  if(i >= m->ntabs) break;
 	  if(m->tab_widths[i] >  maxsize) m->tab_widths[i] = maxsize;
 	  dc.w = m->tab_widths[i];
-	  col = (c == m->sel)  ? 1 : (c->isurgent ? 2 : 0);
+	  col = (c == m->sel)  ? 1 : (c->isurgent ? 2 : 4);
 	  drawtext(dc.tabdrawable, c->name, col, True);
 	  dc.x += dc.w;
 	  ++i;
