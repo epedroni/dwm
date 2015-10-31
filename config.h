@@ -55,9 +55,9 @@ static const Rule rules[] = {
 	/* WM_CLASS     WM_CLASS      WM_NAME                                             */
   //{  NULL,        NULL,         NULL,            0,            False,        -1 },
 	{  "Surf",      "surf",       NULL,            1 << 0,       False,        -1 },
-	{  "Chromium",  "Chromium",   NULL,            1 << 0,       False,        -1 },
+	{  "chromium",  "chromium",   NULL,            1 << 0,       False,        -1 },
 	
-	{  "XTerm",     "profanity",  "profanity",     1 << 1,       False,        -1 },
+	{  "XTerm",     "weechat",    "weechat",       1 << 1,       False,        -1 },
 	
 	{  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
 	
@@ -93,12 +93,11 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[]     = { "dmenu_recent_aliases", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[1][ColFG], NULL };
+static const char *dmenucmd[]     = { "dmenu_run", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[1][ColFG], NULL };
 static const char *termcmd[]      = { "xterm", NULL };
-static const char *browsercmd[]   = { "surf", NULL };
-static const char *profanitycmd[]   = { "xterm", "-name", "profanity", "-e", "profanity", NULL };
+static const char *browsercmd[]   = { "chromium", NULL };
+static const char *weechatcmd[]   = { "xterm", "-name", "weechat", "-e", "weechat", NULL };
 static const char *playercmd[]    = { "deadbeef", NULL };
-static const char *wincmd[]       = { "vboxsdl", "--startvm", "win7", NULL };
 static const char *editorcmd[]    = { "gedit", NULL };
 
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
@@ -111,9 +110,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_t,      spawn,          {.v = browsercmd } },
 	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = playercmd } },
-	{ MODKEY|ShiftMask,             XK_o,      spawn,          {.v = profanitycmd } },
+	{ MODKEY|ShiftMask,             XK_o,      spawn,          {.v = weechatcmd } },
 	{ MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
-	{ MODKEY|ShiftMask,             XK_u,      spawn,          {.v = wincmd } },
 	
 	{ MODKEY,                       XK_Left,   focusstack,     {.i = -1 } },
 	{ MODKEY,                       XK_Right,  focusstack,     {.i = +1 } },

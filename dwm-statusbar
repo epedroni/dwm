@@ -2,6 +2,8 @@
 #
 # Status bar for dwm. Adapted from:
 # https://github.com/w0ng/bin/blob/master/dwm-statusbar
+#
+# The functions are fairly system-dependent, so it is recommended to copy this file to your ~/bin (or equivalent) and make the adjustments there.
 
 # Colour codes from dwm/config.h
 colour_faded="\x01" # grey on black
@@ -10,8 +12,15 @@ colour_warning="\x03" # yellow on black
 colour_critical="\x04" # red on black
 colour_normal="\x05" # grey on black
 
-# Icon glyphs from font xbmicons.pcf
+# The amount of spacing to use (or a spacer character, like |)
 space="  "
+
+# Time to wait between refreshes, in seconds
+refresh="1"
+
+# Name of the network adapters, like enp3s0
+eth_adapter=""
+wlan_adapter=""
 
 print_date() {
   echo -ne "${colour_normal}$(date "+%d/%m/%y")"
@@ -19,9 +28,10 @@ print_date() {
 
 print_time() {
   time_local="$(date "+%H:%M")"
-  time_us="$(TZ='US/Central' date "+%H:%M")"
+  #time_us="$(TZ='US/Central' date "+%H:%M")"
 
-  echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}${colour_faded}${time_us}"
+  #echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}${colour_faded}${time_us}"
+  echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}"
 }
 
 print_volume() {
@@ -50,27 +60,69 @@ print_volume() {
   echo -ne "${icon_colour}${icon}${vol_colour}${volume}%"
 }
 
-print_sda1_free() {
+# This should work out of the box
+print_root_free() {
   # floppy E0C3 
-  sda1_free=$(df -kh / | awk 'NR==2 {print $4}')
-  sda1_percent=$(df -kh / | awk 'NR==2 {print $5}' | sed 's/%//g')
+  root_free=$(df -kh / | awk 'NR==2 {print $4}')
+  root_percent=$(df -kh / | awk 'NR==2 {print $5}' | sed 's/%//g')
   
-  if [ $sda1_percent -gt 90 ]; then
+  if [ $root_percent -gt 90 ]; then
     icon_colour=$colour_critical
-    sda1_colour=$colour_critical
-  elif [ $sda1_percent -gt 75 ]; then
+    root_colour=$colour_critical
+  elif [ $root_percent -gt 75 ]; then
     icon_colour=$colour_warning
-    sda1_colour=$colour_warning
+    root_colour=$colour_warning
   else
     icon_colour=$colour_neutral
-    sda1_colour=$colour_normal
+    root_colour=$colour_normal
   fi
   
-  echo -ne "${icon_colour}\uE0C3${sda1_colour}${sda1_free}"
+  echo -ne "${icon_colour}\uE0C3${root_colour}/: ${root_free} (${root_percent}%)"
 }
 
+# This should also work out of the box, but only makes sense if your /home is on a different partition
+print_home_free() {
+  # floppy E0C3 
+  home_free=$(df -kh /home | awk 'NR==2 {print $4}')
+  home_percent=$(df -kh /home | awk 'NR==2 {print $5}' | sed 's/%//g')
+  
+  if [ $home_percent -gt 90 ]; then
+    icon_colour=$colour_critical
+    home_colour=$colour_critical
+  elif [ $home_percent -gt 75 ]; then
+    icon_colour=$colour_warning
+    home_colour=$colour_warning
+  else
+    icon_colour=$colour_neutral
+    home_colour=$colour_normal
+  fi
+  
+  echo -ne "${icon_colour}\uE0C3${home_colour}/home: ${home_free} (${home_percent}%)"
+}
+
+# This is highly system-dependent, so use it as a template only
+print_shared_free() {
+  # floppy E0C3 
+  shared_free=$(df -kh /home/eddy/shared | awk 'NR==2 {print $4}')
+  shared_percent=$(df -kh /home/eddy/shared | awk 'NR==2 {print $5}' | sed 's/%//g')
+  
+  if [ $shared_percent -gt 90 ]; then
+    icon_colour=$colour_critical
+    shared_colour=$colour_critical
+  elif [ $shared_percent -gt 75 ]; then
+    icon_colour=$colour_warning
+    shared_colour=$colour_warning
+  else
+    icon_colour=$colour_neutral
+    shared_colour=$colour_normal
+  fi
+  
+  echo -ne "${icon_colour}\uE0C3${shared_colour}/mnt/shared: ${shared_free} (${shared_percent}%)"
+}
+
+# This should work out of the box
 print_mem_free() {
-  mem_free="$(free -m | awk 'NR==2 {print $7}')"
+  mem_free="$(free -m | awk '/Mem:/ {print $7}')"
   
   mem_colour=$colour_normal
   icon_colour=$colour_neutral
@@ -85,6 +137,7 @@ print_mem_free() {
   echo -ne "${icon_colour}\uE28B${mem_colour}${mem_free}M"
 }
 
+# This depends on lm_sensors and will likely need configuring
 print_cpu_temp() {
   cpu_temp=$(sensors -u | awk '/Core 0/ {getline; print $2}' | sed -r 's/([0-9]*)\.[0-9]*/\1/')
   
@@ -101,16 +154,61 @@ print_cpu_temp() {
   echo -ne "${icon_colour}\uE3B2${temp_colour}${cpu_temp}°"
 }
 
+# This should work OK, but might need to check the information paths
+print_battery() {
+  # charging E20D, empty E20E, full E20F, 2/3 E210, 1/3 E211
+  # 1 or 0
+  ac_status=$(cat /sys/class/power_supply/AC/online)
+  
+  if [ $ac_status -eq 1 ]; then
+    icon_colour=$colour_neutral
+    if [ -d "/sys/class/power_supply/BAT0" ]; then
+      icon="\uE20D"
+      bat_colour=$colour_normal
+      bat_capacity="$(cat /sys/class/power_supply/BAT0/capacity)%"
+    else
+      icon="\uE257"
+    fi
+  else
+    bat_capacity=$(cat /sys/class/power_supply/BAT0/capacity)
+    if [ $bat_capacity -lt 10 ]; then
+      bat_colour=$colour_critical
+      icon_colour=$colour_critical
+      icon="\uE20E"
+    elif [ $bat_capacity -lt 25 ]; then
+      bat_colour=$colour_warning
+      icon_colour=$colour_warning
+      icon="\uE211"
+    elif [ $bat_capacity -lt 50 ]; then
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE1FB"
+    elif [ $bat_capacity -lt 75 ]; then
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE210"
+    else
+      bat_colour=$colour_normal
+      icon_colour=$colour_neutral
+      icon="\uE20F"
+    fi
+    bat_capacity="${bat_capacity}%"
+  fi
+  
+  echo -ne "${icon_colour}${icon}${bat_colour}${bat_capacity}"
+}
+
 # cpu (from: https://bbs.archlinux.org/viewtopic.php?pid=661641#p661641)
 print_cpu_used() {
   echo -ne "${colour_neutral}\uE3AF${colour_normal}${cpu_used}%"
 }
 
+# Configure the adapter to display above
 print_eth() {
-  eth_status=$(ip addr show dev enp4s0 | awk 'NR==1 {print $9}')
+  eth_status=$(ip addr show dev "$(eth_adapter)" | awk 'NR==1 {print $9}')
   
   if [ "$eth_status" == "UP" ]; then
-    eth_ip=$(ip addr show dev enp4s0 | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
+    eth_ip=$(ip addr show dev "$(eth_adapter)" | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
     icon_colour=${colour_neutral}
     eth_colour=${colour_normal}
   else
@@ -118,6 +216,34 @@ print_eth() {
   fi
 
   echo -ne "${icon_colour}\uE0E4${eth_colour}${eth_ip}"
+}
+
+# Configure the adapter to display above, might need to check the information path
+print_wlan() {
+  wlan_status=$(ip addr show dev "$(wlan_adapter)" | awk 'NR==1 {print $9}')
+  
+  if [ "$wlan_status" == "UP" ]; then
+    wlan_ip=$(ip addr show dev "$(wlan_adapter)" | awk 'NR==3 {print $2}' | sed -r 's/\/.*/, /')
+    let wlan_strength="10 * $(cat /proc/net/wireless | awk 'NR==3 {print substr($3, 1, 2)}') / 7"
+    
+    if [ $wlan_strength -lt 25 ]; then
+      icon_colour=${colour_critical}
+      wlan_colour=${colour_critical}
+    elif [ $wlan_strength -lt 50 ]; then
+      icon_colour=${colour_warning}
+      wlan_colour=${colour_warning}
+    else
+      icon_colour=${colour_neutral}
+      wlan_colour=${colour_normal}
+    fi
+    
+    wlan_strength="${wlan_strength}%"
+    
+  else
+    icon_colour=${colour_faded}
+  fi
+
+  echo -ne "${icon_colour}\uE401${wlan_colour}${wlan_ip}${wlan_strength}"
 }
 
 while true; do
@@ -128,12 +254,13 @@ while true; do
   let cpu_used="100 * ($cpu_interval - ($cpu_idle_now-${cpu_idle_old:-0})) / $cpu_interval"
 
   # Pipe to status bar
-  xsetroot -name "$(print_eth)${space}$(print_sda1_free)${space}$(print_cpu_used)${space}$(print_cpu_temp)${space}$(print_mem_free)${space}$(print_volume)${space}$(print_time)$(print_date)"
+  # This is where you can adjust what gets shown by adding the desired function calls
+  xsetroot -name "$(print_eth)${space}$(print_root_free)${space}$(print_home_free)${space}$(print_shared_free)${space}$(print_cpu_used)${space}$(print_cpu_temp)${space}$(print_mem_free)${space}$(print_volume)${space}$(print_time)$(print_date)"
 
   # reset old rate
   cpu_idle_old=$cpu_idle_now
   cpu_total_old=$cpu_total_now
   
   # loop stats every 1 second
-  sleep 1
+  sleep "$(refresh)"
 done
