@@ -22,6 +22,7 @@ refresh="1"
 eth_adapter=""
 wlan_adapter=""
 
+
 print_date() {
   echo -ne "${colour_normal}$(date "+%d/%m/%y")"
 }
@@ -154,50 +155,6 @@ print_cpu_temp() {
   echo -ne "${icon_colour}\uE3B2${temp_colour}${cpu_temp}°"
 }
 
-# This should work OK, but might need to check the information paths
-print_battery() {
-  # charging E20D, empty E20E, full E20F, 2/3 E210, 1/3 E211
-  # 1 or 0
-  ac_status=$(cat /sys/class/power_supply/AC/online)
-  
-  if [ $ac_status -eq 1 ]; then
-    icon_colour=$colour_neutral
-    if [ -d "/sys/class/power_supply/BAT0" ]; then
-      icon="\uE20D"
-      bat_colour=$colour_normal
-      bat_capacity="$(cat /sys/class/power_supply/BAT0/capacity)%"
-    else
-      icon="\uE257"
-    fi
-  else
-    bat_capacity=$(cat /sys/class/power_supply/BAT0/capacity)
-    if [ $bat_capacity -lt 10 ]; then
-      bat_colour=$colour_critical
-      icon_colour=$colour_critical
-      icon="\uE20E"
-    elif [ $bat_capacity -lt 25 ]; then
-      bat_colour=$colour_warning
-      icon_colour=$colour_warning
-      icon="\uE211"
-    elif [ $bat_capacity -lt 50 ]; then
-      bat_colour=$colour_normal
-      icon_colour=$colour_neutral
-      icon="\uE1FB"
-    elif [ $bat_capacity -lt 75 ]; then
-      bat_colour=$colour_normal
-      icon_colour=$colour_neutral
-      icon="\uE210"
-    else
-      bat_colour=$colour_normal
-      icon_colour=$colour_neutral
-      icon="\uE20F"
-    fi
-    bat_capacity="${bat_capacity}%"
-  fi
-  
-  echo -ne "${icon_colour}${icon}${bat_colour}${bat_capacity}"
-}
-
 # cpu (from: https://bbs.archlinux.org/viewtopic.php?pid=661641#p661641)
 print_cpu_used() {
   echo -ne "${colour_neutral}\uE3AF${colour_normal}${cpu_used}%"
@@ -205,10 +162,10 @@ print_cpu_used() {
 
 # Configure the adapter to display above
 print_eth() {
-  eth_status=$(ip addr show dev "$(eth_adapter)" | awk 'NR==1 {print $9}')
+  eth_status=$(ip addr show dev ${eth_adapter} | awk 'NR==1 {print $9}')
   
   if [ "$eth_status" == "UP" ]; then
-    eth_ip=$(ip addr show dev "$(eth_adapter)" | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
+    eth_ip=$(ip addr show dev ${eth_adapter} | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
     icon_colour=${colour_neutral}
     eth_colour=${colour_normal}
   else
@@ -218,32 +175,19 @@ print_eth() {
   echo -ne "${icon_colour}\uE0E4${eth_colour}${eth_ip}"
 }
 
-# Configure the adapter to display above, might need to check the information path
+# Configure the adapter to display above
 print_wlan() {
-  wlan_status=$(ip addr show dev "$(wlan_adapter)" | awk 'NR==1 {print $9}')
+  wlan_status=$(ip addr show dev ${wlan_adapter} | awk 'NR==1 {print $9}')
   
   if [ "$wlan_status" == "UP" ]; then
-    wlan_ip=$(ip addr show dev "$(wlan_adapter)" | awk 'NR==3 {print $2}' | sed -r 's/\/.*/, /')
-    let wlan_strength="10 * $(cat /proc/net/wireless | awk 'NR==3 {print substr($3, 1, 2)}') / 7"
-    
-    if [ $wlan_strength -lt 25 ]; then
-      icon_colour=${colour_critical}
-      wlan_colour=${colour_critical}
-    elif [ $wlan_strength -lt 50 ]; then
-      icon_colour=${colour_warning}
-      wlan_colour=${colour_warning}
-    else
-      icon_colour=${colour_neutral}
-      wlan_colour=${colour_normal}
-    fi
-    
-    wlan_strength="${wlan_strength}%"
-    
+    wlan_ip=$(ip addr show dev ${wlan_adapter} | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
+    icon_colour=${colour_neutral}
+    wlan_colour=${colour_normal}
   else
     icon_colour=${colour_faded}
   fi
 
-  echo -ne "${icon_colour}\uE401${wlan_colour}${wlan_ip}${wlan_strength}"
+  echo -ne "${icon_colour}\uE0E4${wlan_colour}${wlan_ip}"
 }
 
 while true; do
@@ -261,6 +205,6 @@ while true; do
   cpu_idle_old=$cpu_idle_now
   cpu_total_old=$cpu_total_now
   
-  # loop stats every 1 second
-  sleep "$(refresh)"
+  # loop stats every so many seconds
+  sleep "${refresh}"
 done
