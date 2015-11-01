@@ -219,19 +219,44 @@ print_eth() {
   echo -ne "${icon_colour}\uE0E4${eth_colour}${eth_ip}"
 }
 
-# Configure the adapter to display above
+# Configure the adapter to display above, strength might need to be tweaked
 print_wlan() {
-  wlan_status=$(ip addr show dev ${wlan_adapter} | awk 'NR==1 {print $9}')
+
+  wifi_status=$(ip addr show dev wlan0 | awk 'NR==1 {print $9}')
   
-  if [ "$wlan_status" == "UP" ]; then
-    wlan_ip=$(ip addr show dev ${wlan_adapter} | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
-    icon_colour=${colour_neutral}
-    wlan_colour=${colour_normal}
+  if [ "$wifi_status" == "UP" ]; then
+    
+    wifi_ip=$(ip addr show dev wlan0 | awk 'NR==3 {print $2}' | sed -r 's/\/.*/, /')
+    
   else
     icon_colour=${colour_faded}
   fi
 
-  echo -ne "${icon_colour}\uE401${wlan_colour}${wlan_ip}"
+
+  wlan_status=$(ip addr show dev ${wlan_adapter} | awk 'NR==1 {print $9}')
+  
+  if [ "$wlan_status" == "UP" ]; then
+    wlan_ip=$(ip addr show dev ${wlan_adapter} | awk 'NR==3 {print $2}' | sed -r 's/\/.*//')
+    
+    let wlan_strength="10 * $(cat /proc/net/wireless | awk 'NR==3 {print substr($3, 1, 2)}') / 7"
+    if [ $wlan_strength -lt 25 ]; then
+      icon_colour=${colour_critical}
+      wlan_colour=${colour_critical}
+    elif [ $wlan_strength -lt 50 ]; then
+      icon_colour=${colour_warning}
+      wlan_colour=${colour_warning}
+    else
+      icon_colour=${colour_neutral}
+      wlan_colour=${colour_normal}
+    fi
+    
+    wlan_strength="${wlan_strength}%"
+
+  else
+    icon_colour=${colour_faded}
+  fi
+
+  echo -ne "${icon_colour}\uE401${wlan_colour}${wlan_ip}${wlan_strength}"
 }
 
 while true; do
