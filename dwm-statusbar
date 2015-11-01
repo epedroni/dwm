@@ -231,7 +231,7 @@ print_wlan() {
     icon_colour=${colour_faded}
   fi
 
-  echo -ne "${icon_colour}\uE0E4${wlan_colour}${wlan_ip}"
+  echo -ne "${icon_colour}\uE401${wlan_colour}${wlan_ip}"
 }
 
 while true; do
