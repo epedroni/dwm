@@ -221,18 +221,6 @@ print_eth() {
 
 # Configure the adapter to display above, strength might need to be tweaked
 print_wlan() {
-
-  wifi_status=$(ip addr show dev wlan0 | awk 'NR==1 {print $9}')
-  
-  if [ "$wifi_status" == "UP" ]; then
-    
-    wifi_ip=$(ip addr show dev wlan0 | awk 'NR==3 {print $2}' | sed -r 's/\/.*/, /')
-    
-  else
-    icon_colour=${colour_faded}
-  fi
-
-
   wlan_status=$(ip addr show dev ${wlan_adapter} | awk 'NR==1 {print $9}')
   
   if [ "$wlan_status" == "UP" ]; then
