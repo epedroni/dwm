@@ -37,8 +37,8 @@ print_time() {
 
 print_volume() {
   # empty E022, low E023, full E024, mid E03B
-  volume=$(amixer get Master | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')
-  mute="$(amixer get Master | tail -n1 | sed -r 's/.*\[(on|off)\].*/\1/')"
+  volume=$(amixer get Master -M | tail -n1 | sed -r 's/.*\[(.*)%\].*/\1/')
+  mute="$(amixer get Master -M | tail -n1 | sed -r 's/.*\[(on|off)\].*/\1/')"
   
   if [ "$mute" == "off" ]; then
     vol_colour=$colour_warning
