@@ -58,6 +58,7 @@ static const Rule rules[] = {
 	{  "chromium",  "chromium",   NULL,            1 << 0,       False,        -1 },
 	
 	{  "XTerm",     "weechat",    "weechat",       1 << 1,       False,        -1 },
+    {  "chromium",  "crx_knipolnnllmklapflnccelgolnpehhpl", NULL, 1 << 1, False, -1},
 	
 	{  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
 	
