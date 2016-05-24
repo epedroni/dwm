@@ -100,7 +100,7 @@ static const char *browsercmd[]   = { "chromium", NULL };
 static const char *weechatcmd[]   = { "xterm", "-name", "weechat", "-e", "weechat", NULL };
 static const char *playercmd[]    = { "deadbeef", NULL };
 static const char *editorcmd[]    = { "gedit", NULL };
-static const char *scrotcmd[]     = { "scrot", "~/screenshots/%Y-%m-%d-%H:%M:%S.png", NULL };
+static const char *scrotcmd[]     = { "scrot", "/home/eddy/screenshots/%Y-%m-%d-%H:%M:%S.png", NULL };
 
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
 static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
