@@ -4,6 +4,8 @@
 #define VOLDOWN	0x1008FF11   /* Volume control down        */
 #define VOLMUTE	0x1008FF12   /* Mute sound from the system */
 #define VOLUP	0x1008FF13   /* Volume control up          */
+#define BLUP	0x1008FF02   /* Monitor brightness up	   */
+#define BLDOWN	0x1008FF03   /* Monitor brightness down    */
 
 /* appearance */
 static const char font[]            = "DVIcons:size=8";
@@ -105,6 +107,9 @@ static const char *scrotcmd[]     = { "scrot", "/home/eddy/screenshots/%Y-%m-%d-
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
 static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
 static const char *mutevolumecmd[]   = { "amixer", "-q", "set", "Master", "toggle", NULL };
+static const char *raisebrightness[] = { "xbacklight", "-inc", "5", NULL };
+static const char *lowerbrightness[] = { "xbacklight", "-dec", "5", NULL };
+
 
 static Key keys[] = {
 	/* modifier                     key        function        argument */
@@ -152,6 +157,8 @@ static Key keys[] = {
 	{ 0,                            VOLUP,     spawn,          {.v = raisevolumecmd } },
 	{ 0,                            VOLDOWN,   spawn,          {.v = lowervolumecmd } },
 	{ 0,                            VOLMUTE,   spawn,          {.v = mutevolumecmd } },
+	{ 0,                            BLUP,	   spawn,          {.v = raisebrightness } },
+	{ 0,                            BLDOWN,    spawn,          {.v = lowerbrightness } },
 	
 	{ MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
 	{ MODKEY|ShiftMask,             XK_e,      quit,           {0} },

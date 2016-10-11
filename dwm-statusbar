@@ -30,6 +30,7 @@ print_date() {
 print_time() {
   time_local="$(date "+%H:%M")"
   #time_us="$(TZ='US/Central' date "+%H:%M")"
+  #time_br="$(TZ='America/Sao_Paulo' date "+%H:%M")"
 
   #echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}${colour_faded}${time_us}"
   echo -ne "${colour_neutral}\uE3D2${colour_normal}${time_local}"
@@ -59,6 +60,15 @@ print_volume() {
   fi
   
   echo -ne "${icon_colour}${icon}${vol_colour}${volume}%"
+}
+
+# This is very system-dependent
+print_backlight() {
+  # E3D8
+  max_backlight=$(cat /sys/class/backlight/intel_backlight/max_brightness)
+  let backlight="100 * $(cat /sys/class/backlight/intel_backlight/brightness) / $max_backlight"
+
+  echo -ne "${colour_neutral}\uE3D8${colour_normal}${backlight}%"
 }
 
 # This will probably need tweaking
@@ -256,7 +266,7 @@ while true; do
 
   # Pipe to status bar
   # This is where you can adjust what gets shown by adding the desired function calls
-  xsetroot -name "$(print_eth)${space}$(print_root_free)${space}$(print_home_free)${space}$(print_shared_free)${space}$(print_cpu_used)${space}$(print_cpu_temp)${space}$(print_mem_free)${space}$(print_volume)${space}$(print_time)$(print_date)"
+  xsetroot -name "$(print_eth)${space}$(print_wlan)${space}$(print_root_free)${space}$(print_home_free)${space}$(print_cpu_used)${space}$(print_cpu_temp)${space}$(print_mem_free)${space}$(print_battery)${space}$(print_backlight)${space}$(print_volume)${space}$(print_time)$(print_date)"
 
   # reset old rate
   cpu_idle_old=$cpu_idle_now
