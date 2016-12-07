@@ -857,6 +857,14 @@ drawbar(Monitor *m) {
 		else
 		  drawtext(dc.drawable, NULL, 0, False);
 	}
+	
+	struct timeval tv;
+    gettimeofday(&tv, NULL);
+    if (tv.tv_sec - latestlock.tv_sec < ptimeout)
+	    drawtext(dc.drawable, "\uE2FC", 2, True);
+	else
+	    drawtext(dc.drawable, NULL, 0, False);
+	
 	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
 	XSync(dpy, False);
 }

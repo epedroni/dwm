@@ -6,7 +6,7 @@
 #define VOLUP	0x1008FF13   /* Volume control up          */
 #define BLUP	0x1008FF02   /* Monitor brightness up	   */
 #define BLDOWN	0x1008FF03   /* Monitor brightness down    */
-#define SEARCH  0x1008FF1B
+#define SEARCH  0x1008FF1D
 
 /* appearance */
 static const char font[]            = "DVIcons:size=8";
@@ -35,8 +35,7 @@ static const Bool toptab            = True;         /* False means bottom tab ba
 
 /* Productivity lock timeout in seconds - when the productivity lock is enabled, it is */
 /* impossible to change view and toggle tags for the duration of the timeout */
-/* Default is 15 minutes (900 s) */
-static const long ptimeout = 900;
+static const long ptimeout = 1800;
 
 /* tags                        web       chat      work      office    media     win7      gp        gp        gp    */
 static const char *tags[] = { "\uE372", "\uE21B", "\uE3A9", "\uE0F2", "\uE140", "\uE343", "\uE027", "\uE027", "\uE027" };
@@ -110,14 +109,10 @@ static const char *weechatcmd[]   = { "xterm", "-name", "weechat", "-e", "weecha
 static const char *playercmd[]    = { "deadbeef", NULL };
 static const char *editorcmd[]    = { "gedit", NULL };
 static const char *scrotcmd[]     = { "scrot", "/home/eddy/screenshots/%Y-%m-%d-%H:%M:%S.png", NULL };
-static const char *lockcmd[]      = { "i3lock", "-c", "000000", NULL };
 
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
 static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
 static const char *mutevolumecmd[]   = { "amixer", "-q", "set", "Master", "toggle", NULL };
-static const char *raisebrightness[] = { "xbacklight", "-inc", "5", NULL };
-static const char *lowerbrightness[] = { "xbacklight", "-dec", "5", NULL };
-
 
 static Key keys[] = {
     /* modifier                     key        function        argument */
@@ -127,7 +122,6 @@ static Key keys[] = {
     { MODKEY|ShiftMask,             XK_p,      spawn,          {.v = playercmd } },
     { MODKEY|ShiftMask,             XK_o,      spawn,          {.v = weechatcmd } },
     { MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
-    { MODKEY,                       XK_p,      spawn,          {.v = lockcmd } },
     { 0,				            XK_Print,  spawn,	       {.v = scrotcmd } },
     
     { 0,                            SEARCH,    prodlock,	   {0} },
@@ -168,8 +162,6 @@ static Key keys[] = {
     { 0,                            VOLUP,     spawn,          {.v = raisevolumecmd } },
     { 0,                            VOLDOWN,   spawn,          {.v = lowervolumecmd } },
     { 0,                            VOLMUTE,   spawn,          {.v = mutevolumecmd } },
-    { 0,                            BLUP,	   spawn,          {.v = raisebrightness } },
-    { 0,                            BLDOWN,    spawn,          {.v = lowerbrightness } },
     
     { MODKEY|ShiftMask,             XK_q,      killclient,     {0} },
     { MODKEY|ShiftMask,             XK_e,      quit,           {0} },
