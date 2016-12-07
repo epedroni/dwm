@@ -37,6 +37,7 @@
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
 #include <X11/Xft/Xft.h>
+#include <sys/time.h>
 #ifdef XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif /* XINERAMA */
@@ -60,6 +61,10 @@
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (textnw(X, strlen(X)) + dc.font.height)
+
+#define CHECKLOCK               struct timeval tv; \
+                                gettimeofday(&tv, NULL); \
+                                if (tv.tv_sec - latestlock.tv_sec < ptimeout) return;
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast };        /* cursor */
@@ -225,6 +230,7 @@ static void motionnotify(XEvent *e);
 static void movemouse(const Arg *arg);
 static Client *nexttiled(Client *c);
 static void pop(Client *);
+static void prodlock(const Arg *arg);
 static void propertynotify(XEvent *e);
 static void quit(const Arg *arg);
 static Monitor *recttomon(int x, int y, int w, int h);
@@ -306,6 +312,10 @@ static Display *dpy;
 static DC dc;
 static Monitor *mons = NULL, *selmon = NULL;
 static Window root;
+static struct timeval latestlock = {
+    .tv_sec = 0,
+    .tv_usec = 0
+};
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -1093,6 +1103,8 @@ focusin(XEvent *e) { /* there are some broken focus acquiring clients */
 
 void
 focusmon(const Arg *arg) {
+    CHECKLOCK;
+
 	Monitor *m;
 
 	if(!mons->next)
@@ -1496,6 +1508,11 @@ pop(Client *c) {
 }
 
 void
+prodlock(const Arg *arg) {
+    gettimeofday(&latestlock, NULL);
+}
+
+void
 propertynotify(XEvent *e) {
 	Client *c;
 	Window trans;
@@ -1889,6 +1906,8 @@ spawn(const Arg *arg) {
 
 void
 tag(const Arg *arg) {
+    CHECKLOCK;
+    
 	if(selmon->sel && arg->ui & TAGMASK) {
 		selmon->sel->tags = arg->ui & TAGMASK;
 		focus(NULL);
@@ -1898,6 +1917,8 @@ tag(const Arg *arg) {
 
 void
 tagmon(const Arg *arg) {
+    CHECKLOCK;
+
 	if(!selmon->sel || !mons->next)
 		return;
 	sendmon(selmon->sel, dirtomon(arg->i));
@@ -1970,6 +1991,8 @@ void
 toggletag(const Arg *arg) {
 	unsigned int newtags;
 
+    CHECKLOCK;
+
 	if(!selmon->sel)
 		return;
 	newtags = selmon->sel->tags ^ (arg->ui & TAGMASK);
@@ -1984,6 +2007,8 @@ void
 toggleview(const Arg *arg) {
 	unsigned int newtagset = selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK);
 	int i;
+
+    CHECKLOCK;
 
 	if(newtagset) {
 		if(newtagset == ~0) {
@@ -2310,6 +2335,8 @@ void
 view(const Arg *arg) {
 	int i;
 	unsigned int tmptag;
+	
+	CHECKLOCK;
 
 	if((arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
 		return;
