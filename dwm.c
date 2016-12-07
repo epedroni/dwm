@@ -860,9 +860,12 @@ drawbar(Monitor *m) {
 	
 	struct timeval tv;
     gettimeofday(&tv, NULL);
-    if (tv.tv_sec - latestlock.tv_sec < ptimeout)
-	    drawtext(dc.drawable, "\uE2FC", 2, True);
-	else
+    char locktime[10];
+    long timepassed = tv.tv_sec - latestlock.tv_sec;
+    if (timepassed < ptimeout) {
+        sprintf(locktime, "\uE2FC %d:%02d", (int) (ptimeout - timepassed) / 60, (int) (ptimeout - timepassed) % 60);
+	    drawtext(dc.drawable, locktime, 2, True);
+	} else
 	    drawtext(dc.drawable, NULL, 0, False);
 	
 	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
