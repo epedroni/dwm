@@ -35,8 +35,7 @@ static const Bool toptab            = True;         /* False means bottom tab ba
 
 /* Productivity lock timeout in seconds - when the productivity lock is enabled, it is */
 /* impossible to change view and toggle tags for the duration of the timeout */
-/* Default is 15 minutes (900 s) */
-static const long ptimeout = 900;
+static const long ptimeout = 1800;
 
 /* tags                        web       chat      work      office    media     win7      gp        gp        gp    */
 static const char *tags[] = { "\uE372", "\uE21B", "\uE3A9", "\uE0F2", "\uE140", "\uE343", "\uE027", "\uE027", "\uE027" };
