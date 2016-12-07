@@ -11,3 +11,5 @@ This dwm version has a few patches applied to it:
 The patch files are here only for reference, I patched dwm.c manually after the first patch.
 
 I also put in a boolean in config.h for choosing whether the client title is displayed in the status bar. The included status bar script is based on [w0ng's](https://github.com/w0ng/bin/blob/master/dwm-statusbar) and relies on a [custom font](https://github.com/epedroni/dvicons).
+
+Update 07.12.2016: added productivity lock; press XF86_Find to lock the interface for 15 minutes. While locked, no tag operations are allowed. There is no way to suspend the lock besides closing dwm, so use with care!

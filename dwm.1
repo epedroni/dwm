@@ -48,25 +48,11 @@ prints version information to standard output, then exits.
 is read and displayed in the status text area. It can be set with the
 .BR xsetroot (1)
 command.
-.TP
-.B Button1
-click on a tag label to display all windows with that tag, click on the layout
-label toggles between tiled and floating layout, click on a window name in the
-tab bar brings focus to that window.
-.TP
-.B Button3
-click on a tag label adds/removes all windows with that tag to/from the view.
-.TP
-.B Mod1\-Button1
-click on a tag label applies that tag to the focused window.
-.TP
-.B Mod1\-Button3
-click on a tag label adds/removes that tag to/from the focused window.
 .SS Keyboard commands
 .TP
-.B Mod1\-Shift\-Return
+.B Mod1\-Return
 Start
-.BR uxterm (1).
+.BR xterm (1).
 .TP
 .B Mod1\-,
 Focus previous screen, if any.
@@ -80,52 +66,43 @@ Send focused window to previous screen, if any.
 .B Mod1\-Shift\-.
 Send focused window to next screen, if any.
 .TP
-.B Mod1\-b
-Toggles bar on and off.
-.TP
-.B Mod1\-t
+.B Mod1\-e
 Sets tiled layout.
 .TP
 .B Mod1\-f
 Sets floating layout.
 .TP
-.B Mod1\-m
+.B Mod1\-w
 Sets monocle layout.
 .TP
-.B Mod1\-space
+.B Mod1\-Space
 Toggles between current and previous layout.
 .TP
-.B Mod1\-j
+.B Mod1\-Right
 Focus next window.
 .TP
-.B Mod1\-k
+.B Mod1\-Left
 Focus previous window.
 .TP
-.B Mod1\-i
+.B Mod1\-Up
 Increase clients in master area.
 .TP
-.B Mod1\-d
+.B Mod1\-Down
 Decrease clients in master area.
 .TP
-.B Mod1\-l
+.B Mod1\-Shift-Right
 Increase master area size.
 .TP
-.B Mod1\-h
+.B Mod1\-Shift-Left
 Decrease master area size.
 .TP
-.B Mod1\-w
-Cycle over the tab bar display modes: never displayed, always displayed,
-displayed only in monocle mode when the view contains than one window (auto
-mode). Some display modes can be disabled in the configuration, config.h. In
-the default configuration only "never" and "auto" display modes are enabled.
-.TP
-.B Mod1\-Return
+.B Mod1\-Shift-Return
 Zooms/cycles focused window to/from master area (tiled layouts only).
 .TP
-.B Mod1\-Shift\-c
+.B Mod1\-Shift\-q
 Close focused window.
 .TP
-.B Mod1\-Shift\-space
+.B Mod1\-Shift\-Space
 Toggle focused window between tiled and floating state.
 .TP
 .B Mod1\-Tab
@@ -149,15 +126,12 @@ View all windows with any tag.
 .B Mod1\-Control\-[1..n]
 Add/remove all windows with nth tag to/from the view.
 .TP
-.B Mod1\-Shift\-q
+.B Mod1\-Shift\-e
 Quit dwm.
 .SS Mouse commands
 .TP
 .B Mod1\-Button1
 Move focused window while dragging. Tiled windows will be toggled to the floating state.
-.TP
-.B Mod1\-Button2
-Toggles focused window between floating and tiled state.
 .TP
 .B Mod1\-Button3
 Resize focused window while dragging. Tiled windows will be toggled to the floating state.
