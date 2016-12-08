@@ -122,16 +122,16 @@ static Key keys[] = {
     { MODKEY|ShiftMask,             XK_p,      spawn,          {.v = playercmd } },
     { MODKEY|ShiftMask,             XK_o,      spawn,          {.v = weechatcmd } },
     { MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
-    { 0,				            XK_Print,  spawn,	       {.v = scrotcmd } },
+    { 0,		            XK_Print,  spawn,	       {.v = scrotcmd } },
     
     { 0,                            SEARCH,    prodlock,	   {0} },
     
-    { MODKEY,                       XK_Left,   focusstack,     {.i = -1 } },
-    { MODKEY,                       XK_Right,  focusstack,     {.i = +1 } },
-    { MODKEY,                       XK_Up,     incnmaster,     {.i = +1 } },
-    { MODKEY,                       XK_Down,   incnmaster,     {.i = -1 } },
-    { MODKEY|ShiftMask,             XK_Left,   setmfact,       {.f = -0.05} },
-    { MODKEY|ShiftMask,             XK_Right,  setmfact,       {.f = +0.05} },
+    { MODKEY,                       XK_h,      focusstack,     {.i = -1 } },
+    { MODKEY,                       XK_l,      focusstack,     {.i = +1 } },
+    { MODKEY,                       XK_k,      incnmaster,     {.i = +1 } },
+    { MODKEY,                       XK_j,      incnmaster,     {.i = -1 } },
+    { MODKEY|ShiftMask,             XK_h,      setmfact,       {.f = -0.05} },
+    { MODKEY|ShiftMask,             XK_l    ,  setmfact,       {.f = +0.05} },
     { MODKEY|ShiftMask,             XK_Return, zoom,           {0} },
     { MODKEY,                       XK_Tab,    view,           {0} },
     
