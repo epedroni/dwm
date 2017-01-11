@@ -131,8 +131,8 @@ static Key keys[] = {
     { MODKEY,                       XK_p,      spawn,          {.v = lockcmd } },
     { 0,				            XK_Print,  spawn,	       {.v = scrotcmd } },
     
-    { 0,                            SEARCH,    prodlock,	   {0} },
-    { 0,                            TPAD,      toggletrackpad,	   {0} },
+    { 0,                            SEARCH,    prodlock,       {0} },
+    { 0,                            TPAD,      spawn,	       {.v = toggletrackpad} },
     
     { MODKEY,                       XK_h,      focusstack,     {.i = -1 } },
     { MODKEY,                       XK_l,      focusstack,     {.i = +1 } },
