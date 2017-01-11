@@ -6,7 +6,8 @@
 #define VOLUP	0x1008FF13   /* Volume control up          */
 #define BLUP	0x1008FF02   /* Monitor brightness up	   */
 #define BLDOWN	0x1008FF03   /* Monitor brightness down    */
-#define SEARCH  0x1008FF1B
+#define SEARCH  0x1008FF1B   /* Focus mode                 */
+#define TPAD    0x1008FF4A   /* Trackpad lock              */
 
 /* appearance */
 static const char font[]            = "DVIcons:size=8";
@@ -116,6 +117,7 @@ static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+"
 static const char *mutevolumecmd[]   = { "amixer", "-q", "set", "Master", "toggle", NULL };
 static const char *raisebrightness[] = { "xbacklight", "-inc", "5", NULL };
 static const char *lowerbrightness[] = { "xbacklight", "-dec", "5", NULL };
+static const char *toggletrackpad[]  = { "toggle-trackpad", NULL };
 
 
 static Key keys[] = {
@@ -130,6 +132,7 @@ static Key keys[] = {
     { 0,				            XK_Print,  spawn,	       {.v = scrotcmd } },
     
     { 0,                            SEARCH,    prodlock,	   {0} },
+    { 0,                            TPAD,      toggletrackpad,	   {0} },
     
     { MODKEY,                       XK_h,      focusstack,     {.i = -1 } },
     { MODKEY,                       XK_l,      focusstack,     {.i = +1 } },

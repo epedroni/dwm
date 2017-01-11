@@ -92,15 +92,15 @@ print_battery() {
       bat_colour=$colour_critical
       icon_colour=$colour_critical
       icon="\uE20E"
-    elif [ $bat_capacity -lt 25 ]; then
+    elif [ $bat_capacity -lt 35 ]; then
       bat_colour=$colour_warning
       icon_colour=$colour_warning
       icon="\uE211"
-    elif [ $bat_capacity -lt 50 ]; then
+    elif [ $bat_capacity -lt 65 ]; then
       bat_colour=$colour_normal
       icon_colour=$colour_neutral
       icon="\uE1FB"
-    elif [ $bat_capacity -lt 75 ]; then
+    elif [ $bat_capacity -lt 85 ]; then
       bat_colour=$colour_normal
       icon_colour=$colour_neutral
       icon="\uE210"
