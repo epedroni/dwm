@@ -63,13 +63,14 @@ static const Rule rules[] = {
   //{  NULL,        NULL,         NULL,            0,            False,        -1 },
     {  "Surf",      "surf",       NULL,            1 << 0,       False,        -1 },
     {  "Chromium",  "chromium",   NULL,            1 << 0,       False,        -1 },
+    {  "Firefox",   "Navigator",  NULL,            1 << 0,       False,        -1 },
     
-    {  "XTerm",     "weechat",    "weechat",       1 << 1,       False,        -1 },
+    {  "Thunderbird", "Mail",     NULL,            1 << 1,       False,        -1 },
     {  "Chromium",  "crx_knipolnnllmklapflnccelgolnpehhpl", NULL, 1 << 1, False, -1},
     {  "Slack",  "slack", NULL, 1 << 1, False, -1},
 
     {  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
-    {  "sun-awt-X11-XFramePeer",   "jetbrains-idea",    NULL,            1 << 2,       False,        -1 },
+    {  "jetbrains-idea", "sun-awt-X11-XFramePeer", NULL, 1 << 2, False,        -1 },
     
     {  "TeXstudio", "texstudio",  NULL,            1 << 3,       False,        -1 },
     {  "Abiword",   "abiword",    NULL,            1 << 3,       False,        -1 },
@@ -106,10 +107,11 @@ static const Layout layouts[] = {
 static const char *dmenucmd[]     = { "dmenu_run", "-fn", font, "-nb", colors[0][ColBG], "-nf", colors[0][ColFG],"-sb", colors[1][ColBG], "-sf", colors[1][ColFG], NULL };
 static const char *termcmd[]      = { "xterm", NULL };
 static const char *browsercmd[]   = { "chromium", NULL };
-static const char *weechatcmd[]   = { "xterm", "-name", "weechat", "-e", "weechat", NULL };
+static const char *emailcmd[]     = { "thunderbird", NULL };
 static const char *playercmd[]    = { "deadbeef", NULL };
 static const char *editorcmd[]    = { "gedit", NULL };
 static const char *scrotcmd[]     = { "scrot", "/home/eddy/screenshots/%Y-%m-%d-%H:%M:%S.png", NULL };
+static const char *lockcmd[]      = { "i3lock", "-c", "000000", NULL };
 
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
 static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
@@ -121,9 +123,10 @@ static Key keys[] = {
     { MODKEY,                       XK_Return, spawn,          {.v = termcmd } },
     { MODKEY,                       XK_t,      spawn,          {.v = browsercmd } },
     { MODKEY|ShiftMask,             XK_p,      spawn,          {.v = playercmd } },
-    { MODKEY|ShiftMask,             XK_o,      spawn,          {.v = weechatcmd } },
+    { MODKEY|ShiftMask,             XK_o,      spawn,          {.v = emailcmd } },
     { MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
-    { 0,		            XK_Print,  spawn,	       {.v = scrotcmd } },
+    { MODKEY,                       XK_p,      spawn,          {.v = lockcmd } },
+    { 0,		                    XK_Print,  spawn,	       {.v = scrotcmd } },
     
     { 0,                            SEARCH,    prodlock,	   {0} },
     
