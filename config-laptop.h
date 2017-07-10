@@ -67,7 +67,7 @@ static const Rule rules[] = {
     {  "Firefox",   "Navigator",  NULL,            1 << 0,       False,        -1 },
     
     {  "Thunderbird", "Mail",     NULL,            1 << 1,       False,        -1 },
-    {  "Chromium",  "crx_knipolnnllmklapflnccelgolnpehhpl", NULL, 1 << 1, False, -1},
+    {  "TelegramDesktop", "telegram-desktop",     "Telegram",      1 << 1,       False,        -1 },
     {  "Slack",     "slack",      NULL,            1 << 1,       False,         -1},
 
     {  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
