@@ -55,7 +55,7 @@ gp: E027
 /* The first element is for all-tag view, following i-th element corresponds to */
 /* tags[i]. Layout is referred using the layouts array index.*/
 /* tags                                      all    web    chat   work   office media  win7   gp     gp     gp */
-static int def_layouts[1 + LENGTH(tags)] = { 0,     0,     0,     0,     2,     0,     2,     0,     0,     0 };
+static int def_layouts[1 + LENGTH(tags)] = { 0,     0,     0,     0,     2,     2,     2,     0,     0,     0 };
 
 /* rules */
 static const Rule rules[] = {
