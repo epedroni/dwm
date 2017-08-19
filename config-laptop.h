@@ -15,11 +15,11 @@ static const char font[]            = "DVIcons:size=8";
 #define NUMCOLORS 5                      // need at least 3
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
-   { "#3b3b3b", "#404040", "#111111" },  // 0 = normal
-   { "#689dff", "#386dff", "#111111" },  // 1 = selected
-   { "#ffffff", "#ffca38", "#111111" },  // 2 = urgent/warning
-   { "#ffffff", "#ff3838", "#111111" },  // 3 = error
-   { "#ffffff", "#999999", "#111111" },  // 4 = statusbar
+   { "#555753", "#888a85", "#2e3436" },  // 0 = normal
+   { "#8ae234", "#8ae234", "#2e3436" },  // 1 = selected
+   { "#ffffff", "#edd400", "#2e3436" },  // 2 = urgent/warning
+   { "#ffffff", "#cc0000", "#2e3436" },  // 3 = error
+   { "#ffffff", "#d3d7cf", "#2e3436" },  // 4 = statusbar
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
 static const unsigned int snap      = 8;        /* snap pixel */
