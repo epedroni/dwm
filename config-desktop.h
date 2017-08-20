@@ -15,9 +15,9 @@ static const char font[]            = "DVIcons:size=8";
 static const char colors[NUMCOLORS][ColLast][8] = {
    // border   foreground  background
    { "#555753", "#888a85", "#2e3436" },  // 0 = normal
-   { "#8ae234", "#8ae234", "#2e3436" },  // 1 = selected
+   { "#729fcf", "#729fcf", "#2e3436" },  // 1 = selected
    { "#ffffff", "#edd400", "#2e3436" },  // 2 = urgent/warning
-   { "#ffffff", "#cc0000", "#2e3436" },  // 3 = error
+   { "#ffffff", "#ef2929", "#2e3436" },  // 3 = error
    { "#ffffff", "#d3d7cf", "#2e3436" },  // 4 = statusbar
 };
 static const unsigned int borderpx  = 1;        /* border pixel of windows */
