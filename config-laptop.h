@@ -8,6 +8,7 @@
 #define BLDOWN	0x1008FF03   /* Monitor brightness down    */
 #define SEARCH  0x1008FF1B   /* Focus mode                 */
 #define TPAD    0x1008FF4A   /* Trackpad lock              */
+#define PRINT   0x1008FF5D   /* Print screen               */
 
 /* appearance */
 static const char font[]            = "DVIcons:size=8";
@@ -131,8 +132,8 @@ static Key keys[] = {
     { MODKEY|ShiftMask,             XK_o,      spawn,          {.v = emailcmd } },
     { MODKEY|ShiftMask,             XK_i,      spawn,          {.v = editorcmd } },
     { MODKEY,                       XK_p,      spawn,          {.v = lockcmd } },
-    { 0,				            XK_Print,  spawn,	       {.v = scrotcmd } },
-    
+
+    { 0,				            PRINT,     spawn,	       {.v = scrotcmd } },
     { 0,                            SEARCH,    prodlock,       {0} },
     { 0,                            TPAD,      spawn,	       {.v = toggletrackpad} },
     
