@@ -24,7 +24,7 @@ wlan_adapter=""
 
 
 print_date() {
-  echo -ne "${colour_normal}$(date "+%d/%m/%y")"
+  echo -ne "${colour_normal}$(date "+%d.%m.%y")"
 }
 
 print_time() {
