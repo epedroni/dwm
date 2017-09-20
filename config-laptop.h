@@ -73,6 +73,7 @@ static const Rule rules[] = {
 
     {  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
     {  "jetbrains-idea", "sun-awt-X11-XFramePeer", NULL, 1 << 2, False,        -1 },
+    {  "jetbrains-studio", "sun-awt-X11-XFramePeer", NULL, 1 << 2, False,      -1 },
     
     {  "TeXstudio", "texstudio",  NULL,            1 << 3,       False,        -1 },
     {  "Abiword",   "abiword",    NULL,            1 << 3,       False,        -1 },
