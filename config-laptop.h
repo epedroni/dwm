@@ -119,8 +119,8 @@ static const char *lockcmd[]      = { "i3lock", "-c", "000000", NULL };
 static const char *lowervolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB-", NULL };
 static const char *raisevolumecmd[]  = { "amixer", "-q", "set", "Master", "2dB+", NULL };
 static const char *mutevolumecmd[]   = { "amixer", "-q", "set", "Master", "toggle", NULL };
-static const char *raisebrightness[] = { "xbacklight", "-set", "1", NULL };
-static const char *lowerbrightness[] = { "xbacklight", "-set", "20", NULL };
+static const char *raisebrightness[] = { "xbacklight", "-set", "20", NULL };
+static const char *lowerbrightness[] = { "xbacklight", "-set", "1", NULL };
 static const char *toggletrackpad[]  = { "toggle-trackpad", NULL };
 
 
