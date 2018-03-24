@@ -68,6 +68,8 @@ static const Rule rules[] = {
     {  "Thunderbird", "Mail",     NULL,            1 << 1,       False,        -1 },
     {  "TelegramDesktop", "telegram-desktop",     "Telegram",      1 << 1,       False,        -1 },
     {  "Slack",  "slack", NULL, 1 << 1, False, -1},
+    {  "whatsapp-desktop",     "whatsapp-desktop", NULL, 1 << 1, False,         -1},
+    {  "Rocket.Chat+",     "rocket.chat+", NULL, 1 << 1, False,         -1},
 
     {  "Eclipse",   "Eclipse",    NULL,            1 << 2,       False,        -1 },
     {  "jetbrains-idea", "sun-awt-X11-XFramePeer", NULL, 1 << 2, False,        -1 },
